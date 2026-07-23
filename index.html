@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ ULTIMATE 3D UNIVERSE ⚡</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+    cursor: none;
+  }
+  
+  /* === КАСТОМНЫЙ КУРСОР === */
+  .cursor {
+    position: fixed;
+    width: 25px;
+    height: 25px;
+    border: 2px solid #00f0ff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s;
+    box-shadow: 0 0 20px #00f0ff, inset 0 0 10px #00f0ff;
+  }
+  .cursor-dot {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: #ff00e4;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    box-shadow: 0 0 15px #ff00e4;
+  }
+  .cursor.hover {
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 240, 255, 0.2);
+    border-color: #ffd700;
+    box-shadow: 0 0 40px #ffd700, inset 0 0 20px #ffd700;
+  }
+  
+  /* === TRAIL ЧАСТИЦЫ ЗА КУРСОРОМ === */
+  .trail-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99998;
+  }
+  
+  /* === НАВИГАЦИЯ === */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 20px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  }
+  .logo {
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientMove 3s ease infinite;
+    letter-spacing: 3px;
+  }
+  @keyframes gradientMove {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .nav-links { display: flex; gap: 30px; list-style: none; }
+  .nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s;
+    font-size: 0.95rem;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00f0ff, #ff00e4);
+    transition: width 0.3s;
+    box-shadow: 0 0 10px #00f0ff;
+  }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a:hover { color: #00f0ff; }
+  
+  /* === HERO === */
+  .hero {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  #hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .hero-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    width: 90%;
+  }
+  .glitch {
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 900;
+    letter-spacing: 5px;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700, #00ff88);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientMove 4s ease infinite;
+    text-transform: uppercase;
+    text-shadow: 0 0 80px rgba(0, 240, 255, 0.5);
+    position: relative;
+  }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700, #00ff88);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .glitch::before {
+    animation: gradientMove 4s ease infinite, glitch1 3s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  }
+  .glitch::after {
+    animation: gradientMove 4s ease infinite, glitch2 3s infinite;
+    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  }
+  @keyframes glitch1 {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-5px, 5px); }
+    40% { transform: translate(5px, -5px); }
+    60% { transform: translate(-3px, 3px); }
+    80% { transform: translate(3px, -3px); }
+  }
+  @keyframes glitch2 {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(5px, -5px); }
+    40% { transform: translate(-5px, 5px); }
+    60% { transform: translate(3px, -3px); }
+    80% { transform: translate(-3px, 3px); }
+  }
+  
+  .subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    margin-top: 30px;
+    opacity: 0.9;
+    letter-spacing: 10px;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+  }
+  .cta-button {
+    margin-top: 50px;
+    padding: 20px 60px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: transparent;
+    color: #fff;
+    border: 2px solid #00f0ff;
+    border-radius: 50px;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+  }
+  .cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #00f0ff, #ff00e4, #ffd700);
+    transition: left 0.5s;
+    z-index: -1;
+  }
+  .cta-button:hover::before { left: 0; }
+  .cta-button:hover { 
+    transform: scale(1.1);
+    box-shadow: 0 0 60px #00f0ff;
+    letter-spacing: 6px;
+  }
+  
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    text-align: center;
+    animation: bounce 2s infinite;
+  }
+  .scroll-hint span {
+    display: block;
+    width: 25px;
+    height: 40px;
+    border: 2px solid #00f0ff;
+    border-radius: 20px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 0 10px #00f0ff;
+  }
+  .scroll-hint span::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 4px;
+    height: 8px;
+    background: #00f0ff;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    animation: scrollDot 2s infinite;
+  }
+  @keyframes scrollDot {
+    0% { transform: translate(-50%, 0); opacity: 1; }
+    100% { transform: translate(-50%, 20px); opacity: 0; }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-15px); }
+  }
+  
+  /* === 3D ОБЪЕКТ СЕКЦИЯ === */
+  .object-section {
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(180deg, #000 0%, #0a001a 50%, #000 100%);
+    overflow: hidden;
+  }
+  #object-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .object-ui {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    z-index: 10;
+    max-width: 400px;
+  }
+  .object-ui h2 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+  .object-ui p {
+    line-height: 1.8;
+    opacity: 0.8;
+    margin-bottom: 20px;
+  }
+  .object-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+  }
+  .mini-stat {
+    text-align: center;
+  }
+  .mini-stat .num {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #00f0ff;
+    text-shadow: 0 0 20px #00f0ff;
+  }
+  .mini-stat .label {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 5px;
+  }
+  
+  .object-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 15px;
+  }
+  .obj-btn {
+    padding: 12px 25px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid #00f0ff;
+    color: #fff;
+    border-radius: 30px;
+    cursor: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+  }
+  .obj-btn:hover, .obj-btn.active {
+    background: #00f0ff;
+    color: #000;
+    box-shadow: 0 0 30px #00f0ff;
+    transform: scale(1.1);
+  }
+  
+  /* === 3D КАРТОЧКИ === */
+  .cards-section {
+    padding: 150px 50px;
+    background: #000;
+    position: relative;
+  }
+  .cards-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.1), transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 0, 228, 0.1), transparent 50%);
+    pointer-events: none;
+  }
+  .section-title {
+    text-align: center;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    margin-bottom: 80px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    position: relative;
+    z-index: 5;
+  }
+  .section-title span {
+    background: linear-gradient(45deg, #00f0ff, #ff00e4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cards-3d-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    max-width: 1300px;
+    margin: 0 auto;
+    perspective: 2000px;
+  }
+  .card-3d {
+    position: relative;
+    height: 450px;
+    transform-style: preserve-3d;
+    transition: transform 0.1s;
+    cursor: none;
+  }
+  .card-3d-face {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 228, 0.05));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 25px;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  .card-3d-face::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, #00f0ff, transparent 30%, transparent 60%, #ff00e4, transparent 90%);
+    animation: rotateBorder 6s linear infinite;
+    opacity: 0.6;
+  }
+  .card-3d-face::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%);
+    border-radius: 23px;
+    z-index: 1;
+  }
+  @keyframes rotateBorder {
+    100% { transform: rotate(360deg); }
+  }
+  .card-3d-content {
+    position: relative;
+    z-index: 2;
+  }
+  .card-3d-icon {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    display: block;
+    filter: drop-shadow(0 0 30px #00f0ff);
+    transition: transform 0.3s;
+  }
+  .card-3d:hover .card-3d-icon {
+    transform: scale(1.3) rotateY(360deg);
+  }
+  .card-3d h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .card-3d p {
+    opacity: 0.8;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .card-3d-num {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 4rem;
+    font-weight: 900;
+    opacity: 0.15;
+    z-index: 2;
+  }
+  
+  /* === 3D WAVE GRID === */
+  .wave-section {
+    height: 100vh;
+    position: relative;
+    background: radial-gradient(ellipse at center bottom, #1a0033 0%, #000 70%);
+    overflow: hidden;
+  }
+  #wave-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .wave-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .wave-overlay h2 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientMove 3s ease infinite;
+    text-shadow: 0 0 60px rgba(255, 0, 228, 0.5);
+  }
+  .wave-overlay p {
+    margin-top: 20px;
+    letter-spacing: 5px;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+  
+  /* === 3D ПЛАНЕТА === */
+  .planet-section {
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: radial-gradient(ellipse at center, #1a0033 0%, #000 100%);
+    overflow: hidden;
+  }
+  #planet-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .planet-text {
+    position: relative;
+    z-index: 10;
+    text-align: right;
+    margin-left: auto;
+    margin-right: 8%;
+    max-width: 500px;
+  }
+  .planet-text h2 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #ffd700, #ff00e4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+  }
+  .planet-text p { line-height: 1.8; opacity: 0.8; }
+  .planet-features {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .planet-feature {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 20px;
+    background: rgba(255, 215, 0, 0.05);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+  .planet-feature:hover {
+    background: rgba(255, 215, 0, 0.15);
+    transform: translateX(-10px);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  .planet-feature .icon { font-size: 1.5rem; }
+  .planet-feature .text { flex: 1; }
+  
+  /* === МОРФИНГ ТЕКСТ === */
+  .morph-section {
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+  .morph-text {
+    font-size: clamp(4rem, 15vw, 12rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 10px;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700, #00ff88, #00f0ff);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientMove 5s ease infinite;
+    filter: drop-shadow(0 0 40px rgba(0, 240, 255, 0.5));
+  }
+  
+  /* === СТАТИСТИКА === */
+  .stats-section {
+    padding: 100px 50px;
+    background: linear-gradient(180deg, #000, #0a0a2e, #000);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .stat-item {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(0, 240, 255, 0.03);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+  .stat-item:hover {
+    transform: translateY(-10px) scale(1.05);
+    background: rgba(0, 240, 255, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 240, 255, 0.3);
+  }
+  .stat-num {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    opacity: 0.7;
+    margin-top: 10px;
+    font-size: 0.85rem;
+  }
+  
+  /* === FOOTER === */
+  footer {
+    padding: 80px 50px 40px;
+    background: radial-gradient(ellipse at center top, #0a0a2e 0%, #000 70%);
+    text-align: center;
+    position: relative;
+  }
+  .footer-logo {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientMove 3s ease infinite;
+    letter-spacing: 5px;
+  }
+  .social-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0;
+  }
+  .social-btn {
+    width: 60px;
+    height: 60px;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .social-btn:hover {
+    background: linear-gradient(45deg, #00f0ff, #ff00e4);
+    transform: translateY(-5px) rotate(360deg);
+    box-shadow: 0 0 30px #00f0ff;
+  }
+  .footer-text { opacity: 0.5; margin-top: 20px; font-size: 0.9rem; }
+  
+  /* === АНИМАЦИИ ПОЯВЛЕНИЯ === */
+  .reveal {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* === ПРОГРЕСС БАР СКРОЛЛА === */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00f0ff, #ff00e4, #ffd700);
+    z-index: 10000;
+    box-shadow: 0 0 10px #00f0ff;
+  }
+  
+  /* === АДАПТИВ === */
+  @media (max-width: 768px) {
+    nav { padding: 15px 20px; }
+    .nav-links { display: none; }
+    section, .cards-section, .stats-section { padding: 80px 20px; }
+    .object-ui, .planet-text {
+      left: 5%;
+      right: 5%;
+      max-width: 90%;
+      text-align: center;
+    }
+    .planet-text { text-align: center; margin: 0 auto; }
+    .wave-overlay h2 { letter-spacing: 3px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Прогресс бар -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Кастомный курсор -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Навигация -->
+<nav>
+  <div class="logo">⚡ NEXUS</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Главная</a></li>
+    <li><a href="#object">3D Объект</a></li>
+    <li><a href="#cards">Карточки</a></li>
+    <li><a href="#wave">Волны</a></li>
+    <li><a href="#planet">Планета</a></li>
+    <li><a href="#footer">Контакты</a></li>
+  </ul>
+</nav>
+
+<!-- === HERO С 3D ГАЛАКТИКОЙ === -->
+<section class="hero" id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <h1 class="glitch" data-text="БУДУЩЕЕ 3D">БУДУЩЕЕ 3D</h1>
+    <p class="subtitle">WebGL • Three.js • Шейдеры • Математика</p>
+    <button class="cta-button">Погрузиться ↓</button>
+  </div>
+  <div class="scroll-hint"><span></span></div>
+</section>
+
+<!-- === 3D ИНТЕРАКТИВНЫЙ ОБЪЕКТ === -->
+<section class="object-section" id="object">
+  <canvas id="object-canvas"></canvas>
+  <div class="object-ui">
+    <h2>⚛ Квантовый Объект</h2>
+    <p>Вращай мышью. 3D модель реагирует на каждое движение с физикой отражений и динамическим освещением.</p>
+    <p>Ты видишь реальный WebGL рендер с шейдерами, попиксельным освещением и пост-обработкой.</p>
+    <div class="object-stats">
+      <div class="mini-stat">
+        <div class="num">60</div>
+        <div class="label">FPS</div>
+      </div>
+      <div class="mini-stat">
+        <div class="num">∞</div>
+        <div class="label">Полигонов</div>
+      </div>
+      <div class="mini-stat">
+        <div class="num">3D</div>
+        <div class="label">Real-time</div>
+      </div>
+    </div>
+  </div>
+  <div class="object-controls">
+    <button class="obj-btn active" data-shape="torus">Тор</button>
+    <button class="obj-btn" data-shape="knot">Узел</button>
+    <button class="obj-btn" data-shape="icosa">Икосаэдр</button>
+    <button class="obj-btn" data-shape="sphere">Сфера</button>
+  </div>
+</section>
+
+<!-- === 3D КАРТОЧКИ === -->
+<section class="cards-section" id="cards">
+  <h2 class="section-title reveal"><span>Возможности</span></h2>
+  <div class="cards-3d-container">
+    <div class="card-3d reveal">
+      <div class="card-3d-face">
+        <div class="card-3d-num">01</div>
+        <div class="card-3d-content">
+          <div class="card-3d-icon">🌌</div>
+          <h3>3D Галактика</h3>
+          <p>10000+ частиц, вращающихся вокруг центра. Реалистичная физика гравитации и взаимодействия.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-3d reveal">
+      <div class="card-3d-face">
+        <div class="card-3d-num">02</div>
+        <div class="card-3d-content">
+          <div class="card-3d-icon">⚡</div>
+          <h3>Шейдеры GLSL</h3>
+          <p>Кастомные вершинные и фрагментные шейдеры для невозможных визуальных эффектов.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-3d reveal">
+      <div class="card-3d-face">
+        <div class="card-3d-num">03</div>
+        <div class="card-3d-content">
+          <div class="card-3d-icon">🎮</div>
+          <h3>Интерактив</h3>
+          <p>Каждый объект реагирует на мышь с физикой. Полное погружение в 3D пространство.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-3d reveal">
+      <div class="card-3d-face">
+        <div class="card-3d-num">04</div>
+        <div class="card-3d-content">
+          <div class="card-3d-icon">🌊</div>
+          <h3>Волновая Сетка</h3>
+          <p>Тысячи кубов создают живой 3D ландшафт, реагирующий на движение.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-3d reveal">
+      <div class="card-3d-face">
+        <div class="card-3d-num">05</div>
+        <div class="card-3d-content">
+          <div class="card-3d-icon">🪐</div>
+          <h3>3D Планета</h3>
+          <p>Текстурированная сфера с динамическим освещением и атмосферой.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-3d reveal">
+      <div class="card-3d-face">
+        <div class="card-3d-num">06</div>
+        <div class="card-3d-content">
+          <div class="card-3d-icon">✨</div>
+          <h3>Пост-обработка</h3>
+          <p>Bloom, цветокоррекция, глитч-эффекты. Кинематографичное качество картинки.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- === 3D WAVE GRID === -->
+<section class="wave-section" id="wave">
+  <canvas id="wave-canvas"></canvas>
+  <div class="wave-overlay">
+    <h2>OCEAN OF CODE</h2>
+    <p>Двигай мышью — создавай волны</p>
+  </div>
+</section>
+
+<!-- === 3D ПЛАНЕТА === -->
+<section class="planet-section" id="planet">
+  <canvas id="planet-canvas"></canvas>
+  <div class="planet-text">
+    <h2>🪐 Новая Эра</h2>
+    <p>Сайты больше не плоские. Это полноценные 3D миры, которые можно исследовать. WebGL даёт безграничные возможности.</p>
+    <div class="planet-features">
+      <div class="planet-feature">
+        <span class="icon">🎨</span>
+        <span class="text">Кастомные шейдеры и материалы</span>
+      </div>
+      <div class="planet-feature">
+        <span class="icon">⚙️</span>
+        <span class="text">Реальная физика и математика</span>
+      </div>
+      <div class="planet-feature">
+        <span class="icon">🚀</span>
+        <span class="text">60 FPS на любом устройстве</span>
+      </div>
+      <div class="planet-feature">
+        <span class="icon">💎</span>
+        <span class="text">Кинематографичная графика</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- === МОРФИНГ ТЕКСТ === -->
+<section class="morph-section">
+  <h2 class="morph-text">∞ NEXUS</h2>
+</section>
+
+<!-- === СТАТИСТИКА === -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-num" data-target="50000">0</div>
+      <div class="stat-label">Строк кода</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" data-target="100000">0</div>
+      <div class="stat-label">3D Объектов</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" data-target="60">0</div>
+      <div class="stat-label">FPS</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" data-target="999">0</div>
+      <div class="stat-label">% Крутости</div>
+    </div>
+  </div>
+</section>
+
+<!-- === FOOTER === -->
+<footer id="footer">
+  <div class="footer-logo">⚡ NEXUS</div>
+  <p style="opacity: 0.7; max-width: 600px; margin: 0 auto;">Создано с использованием Three.js, GLSL шейдеров, WebGL, Canvas API и безумного количества кофе ☕</p>
+  <div class="social-grid">
+    <a href="#" class="social-btn">📘</a>
+    <a href="#" class="social-btn">🐦</a>
+    <a href="#" class="social-btn">📷</a>
+    <a href="#" class="social-btn">💼</a>
+    <a href="#" class="social-btn">🐙</a>
+    <a href="#" class="social-btn">▶️</a>
+  </div>
+  <p class="footer-text">© 2026 NEXUS — Будущее уже здесь</p>
+</footer>
+
+<script>
+// ========================================
+// УТИЛИТЫ
+// ========================================
+const lerp = (a, b, t) => a + (b - a) * t;
+const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+const mouse3D = new THREE.Vector2();
+const clock = new THREE.Clock();
+
+// Кастомный курсор
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursorDot');
+document.addEventListener('mousemove', e => {
+  mouse.tx = e.clientX;
+  mouse.ty = e.clientY;
+  cursor.style.left = e.clientX - 12 + 'px';
+  cursor.style.top = e.clientY - 12 + 'px';
+  cursorDot.style.left = e.clientX - 3 + 'px';
+  cursorDot.style.top = e.clientY - 3 + 'px';
+  
+  // Создание частицы-следа
+  if (Math.random() > 0.5) {
+    const p = document.createElement('div');
+    p.className = 'trail-particle';
+    p.style.left = e.clientX - 4 + 'px';
+    p.style.top = e.clientY - 4 + 'px';
+    p.style.background = Math.random() > 0.5 ? '#00f0ff' : '#ff00e4';
+    p.style.boxShadow = `0 0 10px ${p.style.background}`;
+    p.style.transition = 'all 0.8s';
+    document.body.appendChild(p);
+    requestAnimationFrame(() => {
+      p.style.transform = `translate(${(Math.random()-0.5)*50}px, ${(Math.random()-0.5)*50}px) scale(0)`;
+      p.style.opacity = '0';
+    });
+    setTimeout(() => p.remove(), 800);
+  }
+});
+document.querySelectorAll('a, button, .card-3d').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// Плавное движение мыши
+function updateMouse() {
+  mouse.x = lerp(mouse.x, mouse.tx, 0.1);
+  mouse.y = lerp(mouse.y, mouse.ty, 0.1);
+  requestAnimationFrame(updateMouse);
+}
+updateMouse();
+
+// Прогресс бар скролла
+window.addEventListener('scroll', () => {
+  const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('progressBar').style.width = scrolled + '%';
+});
+
+// Reveal анимации
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// Счетчики
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.dataset.target);
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        el.textContent = Math.floor(current).toLocaleString() + (target === 60 ? '' : '+');
+      }, 30);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-num').forEach(el => counterObserver.observe(el));
+
+// ========================================
+// 3D СЦЕНА 1: HERO - ГАЛАКТИКА
+// ========================================
+const heroScene = new THREE.Scene();
+const heroCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const heroRenderer = new THREE.WebGLRenderer({ 
+  canvas: document.getElementById('hero-canvas'),
+  antialias: true, 
+  alpha: true 
+});
+heroRenderer.setSize(window.innerWidth, window.innerHeight);
+heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Создание галактики
+const galaxyCount = 8000;
+const galaxyPositions = new Float32Array(galaxyCount * 3);
+const galaxyColors = new Float32Array(galaxyCount * 3);
+const galaxySizes = new Float32Array(galaxyCount);
+
+const colorInside = new THREE.Color(0xff00e4);
+const colorOutside = new THREE.Color(0x00f0ff);
+
+for (let i = 0; i < galaxyCount; i++) {
+  const radius = Math.random() * 50;
+  const spinAngle = radius * 0.3;
+  const branchAngle = (i % 3) * (Math.PI * 2 / 3);
+  
+  const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+  const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+  const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+  
+  galaxyPositions[i*3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+  galaxyPositions[i*3+1] = randomY * 2;
+  galaxyPositions[i*3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+  
+  const mixedColor = colorInside.clone().lerp(colorOutside, radius / 50);
+  galaxyColors[i*3] = mixedColor.r;
+  galaxyColors[i*3+1] = mixedColor.g;
+  galaxyColors[i*3+2] = mixedColor.b;
+  
+  galaxySizes[i] = Math.random() * 0.3 + 0.05;
+}
+
+const galaxyGeometry = new THREE.BufferGeometry();
+galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(galaxyPositions, 3));
+galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
+galaxyGeometry.setAttribute('size', new THREE.BufferAttribute(galaxySizes, 1));
+
+// Шейдер для частиц
+const galaxyMaterial = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 } },
+  vertexShader: `
+    attribute float size;
+    attribute vec3 color;
+    varying vec3 vColor;
+    uniform float uTime;
+    void main() {
+      vColor = color;
+      vec3 pos = position;
+      pos.y += sin(uTime * 0.5 + position.x * 0.1) * 0.5;
+      vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+      gl_PointSize = size * (300.0 / -mvPosition.z);
+      gl_Position = projectionMatrix * mvPosition;
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vColor;
+    void main() {
+      float dist = distance(gl_PointCoord, vec2(0.5));
+      if (dist > 0.5) discard;
+      float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+      gl_FragColor = vec4(vColor, alpha);
+    }
+  `,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false
+});
+
+const galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
+heroScene.add(galaxy);
+
+// Центральное свечение
+const centerGlow = new THREE.Mesh(
+  new THREE.SphereGeometry(3, 32, 32),
+  new THREE.MeshBasicMaterial({ 
+    color: 0xff00e4, 
+    transparent: true, 
+    opacity: 0.6 
+  })
+);
+heroScene.add(centerGlow);
+
+// Второе кольцо
+const ringGeometry = new THREE.BufferGeometry();
+const ringCount = 3000;
+const ringPos = new Float32Array(ringCount * 3);
+for (let i = 0; i < ringCount; i++) {
+  const angle = (i / ringCount) * Math.PI * 2;
+  const radius = 25 + Math.random() * 15;
+  ringPos[i*3] = Math.cos(angle) * radius;
+  ringPos[i*3+1] = (Math.random() - 0.5) * 0.5;
+  ringPos[i*3+2] = Math.sin(angle) * radius;
+}
+ringGeometry.setAttribute('position', new THREE.BufferAttribute(ringPos, 3));
+const ring = new THREE.Points(ringGeometry, new THREE.PointsMaterial({
+  size: 0.1,
+  color: 0x00f0ff,
+  transparent: true,
+  opacity: 0.7,
+  blending: THREE.AdditiveBlending
+}));
+heroScene.add(ring);
+
+heroCamera.position.z = 60;
+
+// Анимация hero
+function animateHero() {
+  const elapsed = clock.getElapsedTime();
+  galaxyMaterial.uniforms.uTime.value = elapsed;
+  galaxy.rotation.y = elapsed * 0.05;
+  ring.rotation.y = -elapsed * 0.1;
+  ring.rotation.x = Math.sin(elapsed * 0.2) * 0.1;
+  centerGlow.scale.setScalar(1 + Math.sin(elapsed * 2) * 0.1);
+  
+  // Камера реагирует на мышь
+  const targetX = (mouse.x / window.innerWidth - 0.5) * 10;
+  const targetY = -(mouse.y / window.innerHeight - 0.5) * 5;
+  heroCamera.position.x = lerp(heroCamera.position.x, targetX, 0.05);
+  heroCamera.position.y = lerp(heroCamera.position.y, targetY, 0.05);
+  heroCamera.lookAt(0, 0, 0);
+  
+  heroRenderer.render(heroScene, heroCamera);
+}
+
+// ========================================
+// 3D СЦЕНА 2: ИНТЕРАКТИВНЫЙ ОБЪЕКТ
+// ========================================
+const objectScene = new THREE.Scene();
+const objectCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const objectRenderer = new THREE.WebGLRenderer({ 
+  canvas: document.getElementById('object-canvas'),
+  antialias: true, 
+  alpha: true 
+});
+objectRenderer.setSize(window.innerWidth, window.innerHeight);
+objectRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Освещение
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+objectScene.add(ambientLight);
+const pointLight1 = new THREE.PointLight(0x00f0ff, 2, 100);
+pointLight1.position.set(10, 10, 10);
+objectScene.add(pointLight1);
+const pointLight2 = new THREE.PointLight(0xff00e4, 2, 100);
+pointLight2.position.set(-10, -10, 10);
+objectScene.add(pointLight2);
+const pointLight3 = new THREE.PointLight(0xffd700, 1.5, 100);
+pointLight3.position.set(0, 10, -10);
+objectScene.add(pointLight3);
+
+let currentShape;
+let shapes = {};
+
+function createShapes() {
+  // Тор
+  const torus = new THREE.Mesh(
+    new THREE.TorusGeometry(2, 0.7, 32, 100),
+    new THREE.MeshStandardMaterial({ 
+      color: 0x00f0ff, 
+      metalness: 0.8, 
+      roughness: 0.2,
+      emissive: 0x00f0ff,
+      emissiveIntensity: 0.2
+    })
+  );
+  shapes.torus = torus;
+  objectScene.add(torus);
+  
+  // Узел
+  const knot = new THREE.Mesh(
+    new THREE.TorusKnotGeometry(2, 0.5, 100, 16),
+    new THREE.MeshStandardMaterial({ 
+      color: 0xff00e4, 
+      metalness: 0.8, 
+      roughness: 0.2,
+      emissive: 0xff00e4,
+      emissiveIntensity: 0.2
+    })
+  );
+  shapes.knot = knot;
+  knot.visible = false;
+  objectScene.add(knot);
+  
+  // Икосаэдр
+  const icosa = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(2, 0),
+    new THREE.MeshStandardMaterial({ 
+      color: 0xffd700, 
+      metalness: 0.8, 
+      roughness: 0.2,
+      emissive: 0xffd700,
+      emissiveIntensity: 0.2,
+      flatShading: true
+    })
+  );
+  shapes.icosa = icosa;
+  icosa.visible = false;
+  objectScene.add(icosa);
+  
+  // Сфера
+  const sphere = new THREE.Mesh(
+    new THREE.SphereGeometry(2, 64, 64),
+    new THREE.MeshStandardMaterial({ 
+      color: 0x00ff88, 
+      metalness: 0.9, 
+      roughness: 0.1,
+      emissive: 0x00ff88,
+      emissiveIntensity: 0.2
+    })
+  );
+  shapes.sphere = sphere;
+  sphere.visible = false;
+  objectScene.add(sphere);
+  
+  currentShape = torus;
+}
+createShapes();
+
+// Частицы вокруг объекта
+const objectParticles = new THREE.BufferGeometry();
+const objPartCount = 2000;
+const objPartPos = new Float32Array(objPartCount * 3);
+for (let i = 0; i < objPartCount; i++) {
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  const r = 5 + Math.random() * 5;
+  objPartPos[i*3] = r * Math.sin(phi) * Math.cos(theta);
+  objPartPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+  objPartPos[i*3+2] = r * Math.cos(phi);
+}
+objectParticles.setAttribute('position', new THREE.BufferAttribute(objPartPos, 3));
+const objectParticleSystem = new THREE.Points(objectParticles, new THREE.PointsMaterial({
+  size: 0.05,
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0.8,
+  blending: THREE.AdditiveBlending
+}));
+objectScene.add(objectParticleSystem);
+
+objectCamera.position.z = 8;
+
+// Управление формой
+document.querySelectorAll('.obj-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.obj-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.values(shapes).forEach(s => s.visible = false);
+    const shape = btn.dataset.shape;
+    currentShape = shapes[shape];
+    currentShape.visible = true;
+  });
+});
+
+function animateObject() {
+  const elapsed = clock.getElapsedTime();
+  
+  // Вращение объекта
+  if (currentShape) {
+    currentShape.rotation.x = elapsed * 0.3;
+    currentShape.rotation.y = elapsed * 0.4;
+    
+    // Реакция на мышь
+    const targetRotX = (mouse.y / window.innerHeight - 0.5) * Math.PI;
+    const targetRotY = (mouse.x / window.innerWidth - 0.5) * Math.PI;
+    currentShape.rotation.x = lerp(currentShape.rotation.x, targetRotX, 0.05);
+    currentShape.rotation.y = lerp(currentShape.rotation.y, targetRotY, 0.05);
+  }
+  
+  // Вращение частиц
+  objectParticleSystem.rotation.y = -elapsed * 0.1;
+  objectParticleSystem.rotation.x = elapsed * 0.05;
+  
+  // Движение света
+  pointLight1.position.x = Math.sin(elapsed) * 10;
+  pointLight1.position.y = Math.cos(elapsed) * 10;
+  pointLight2.position.x = Math.cos(elapsed) * 10;
+  pointLight2.position.z = Math.sin(elapsed) * 10;
+  
+  objectRenderer.render(objectScene, objectCamera);
+}
+
+// 3D наклон карточек
+document.querySelectorAll('.card-3d').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = (y - centerY) / 8;
+    const rotateY = (centerX - x) / 8;
+    card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+  });
+});
+
+// ========================================
+// 3D СЦЕНА 3: WAVE GRID
+// ========================================
+const waveScene = new THREE.Scene();
+const waveCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const waveRenderer = new THREE.WebGLRenderer({ 
+  canvas: document.getElementById('wave-canvas'),
+  antialias: true, 
+  alpha: true 
+});
+waveRenderer.setSize(window.innerWidth, window.innerHeight);
+waveRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+waveCamera.position.set(0, 15, 25);
+waveCamera.rotation.x = -Math.PI / 6;
+
+const waveGroup = new THREE.Group();
+waveScene.add(waveGroup);
+
+const waveSize = 30;
+const waveSpacing = 1.2;
+const waveCubes = [];
+
+for (let x = 0; x < waveSize; x++) {
+  for (let z = 0; z < waveSize; z++) {
+    const cube = new THREE.Mesh(
+      new THREE.BoxGeometry(0.8, 0.8, 0.8),
+      new THREE.MeshStandardMaterial({ 
+        color: new THREE.Color().setHSL((x + z) / waveSize / 2, 1, 0.5),
+        metalness: 0.5,
+        roughness: 0.3
+      })
+    );
+    cube.position.set(
+      (x - waveSize/2) * waveSpacing,
+      0,
+      (z - waveSize/2) * waveSpacing
+    );
+    waveCubes.push({ mesh: cube, x: x, z: z });
+    waveGroup.add(cube);
+  }
+}
+
+waveScene.add(new THREE.AmbientLight(0xffffff, 0.4));
+const waveLight = new THREE.PointLight(0xff00e4, 2, 50);
+waveLight.position.set(0, 20, 0);
+waveScene.add(waveLight);
+const waveLight2 = new THREE.PointLight(0x00f0ff, 2, 50);
+waveLight2.position.set(15, 15, 0);
+waveScene.add(waveLight2);
+
+function animateWave(time) {
+  const elapsed = time * 0.001;
+  waveCubes.forEach(c => {
+    const distance = Math.sqrt(
+      Math.pow(c.x - waveSize/2, 2) + 
+      Math.pow(c.z - waveSize/2, 2)
+    );
+    const wave = Math.sin(distance * 0.4 - elapsed * 2) * 2;
+    const mouseInfluence = Math.exp(-distance * 0.1) * 3;
+    c.mesh.position.y = wave + mouseInfluence * Math.sin(elapsed * 3);
+    c.mesh.rotation.x = elapsed + c.x * 0.1;
+    c.mesh.rotation.z = elapsed + c.z * 0.1;
+    c.mesh.scale.y = 1 + wave * 0.2;
+  });
+  
+  waveGroup.rotation.y = elapsed * 0.1;
+  waveLight.position.x = Math.sin(elapsed) * 20;
+  waveLight.position.z = Math.cos(elapsed) * 20;
+  waveLight2.position.x = Math.cos(elapsed) * 20;
+  waveLight2.position.z = Math.sin(elapsed) * 20;
+  
+  waveRenderer.render(waveScene, waveCamera);
+}
+
+// ========================================
+// 3D СЦЕНА 4: ПЛАНЕТА
+// ========================================
+const planetScene = new THREE.Scene();
+const planetCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const planetRenderer = new THREE.WebGLRenderer({ 
+  canvas: document.getElementById('planet-canvas'),
+  antialias: true, 
+  alpha: true 
+});
+planetRenderer.setSize(window.innerWidth, window.innerHeight);
+planetRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Планета с кастомным шейдером
+const planetGeometry = new THREE.SphereGeometry(4, 64, 64);
+const planetMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(0, 0) }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    void main() {
+      vUv = uv;
+      vNormal = normalize(normalMatrix * normal);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform float uTime;
+    uniform vec2 uMouse;
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    
+    // Простой шум
+    float noise(vec2 p) {
+      return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+    }
+    
+    float fbm(vec2 p) {
+      float v = 0.0;
+      float a = 0.5;
+      for (int i = 0; i < 5; i++) {
+        v += a * noise(p);
+        p *= 2.0;
+        a *= 0.5;
+      }
+      return v;
+    }
+    
+    void main() {
+      vec2 uv = vUv;
+      
+      // Создаём текстуру планеты
+      float n = fbm(uv * 8.0 + uTime * 0.1);
+      float n2 = fbm(uv * 16.0 - uTime * 0.05);
+      
+      // Континенты и океаны
+      vec3 deep = vec3(0.0, 0.1, 0.4);
+      vec3 shallow = vec3(0.0, 0.4, 0.8);
+      vec3 land = vec3(0.2, 0.5, 0.1);
+      vec3 mountain = vec3(0.5, 0.3, 0.1);
+      
+      vec3 color = mix(deep, shallow, smoothstep(0.3, 0.4, n));
+      color = mix(color, land, smoothstep(0.4, 0.5, n));
+      color = mix(color, mountain, smoothstep(0.6, 0.7, n2));
+      
+      // Облака
+      float clouds = fbm(uv * 4.0 + uTime * 0.2);
+      color = mix(color, vec3(1.0), smoothstep(0.6, 0.7, clouds) * 0.5);
+      
+      // Освещение
+      float light = dot(vNormal, normalize(vec3(0.5, 0.5, 1.0)));
+      light = max(0.2, light);
+      color *= light;
+      
+      // Атмосферное свечение
+      float atmosphere = pow(1.0 - abs(dot(vNormal, vec3(0, 0, 1))), 2.0);
+      color += vec3(0.3, 0.5, 1.0) * atmosphere * 0.3;
+      
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `
+});
+
+const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+planet.position.x = -5;
+planetScene.add(planet);
+
+// Атмосфера
+const atmosphere = new THREE.Mesh(
+  new THREE.SphereGeometry(4.3, 64, 64),
+  new THREE.ShaderMaterial({
+    vertexShader: `
+      varying vec3 vNormal;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vNormal;
+      void main() {
+        float intensity = pow(0.6 - dot(vNormal, vec3(0, 0, 1)), 2.0);
+        gl_FragColor = vec3(0.3, 0.6, 1.0) * intensity;
+      }
+    `,
+    blending: THREE.AdditiveBlending,
+    side: THREE.BackSide,
+    transparent: true
+  })
+);
+planet.add(atmosphere);
+
+// Звёзды вокруг планеты
+const starCount = 3000;
+const starGeometry = new THREE.BufferGeometry();
+const starPositions = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount; i++) {
+  starPositions[i*3] = (Math.random() - 0.5) * 200;
+  starPositions[i*3+1] = (Math.random() - 0.5) * 200;
+  starPositions[i*3+2] = (Math.random() - 0.5) * 200;
+}
+starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({
+  size: 0.3,
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0.8
+}));
+planetScene.add(stars);
+
+planetCamera.position.z = 12;
+
+function animatePlanet() {
+  const elapsed = clock.getElapsedTime();
+  planetMaterial.uniforms.uTime.value = elapsed;
+  planet.rotation.y = elapsed * 0.1;
+  stars.rotation.y = elapsed * 0.01;
+  
+  const targetX = (mouse.x / window.innerWidth - 0.5) * 3;
+  const targetY = -(mouse.y / window.innerHeight - 0.5) * 2;
+  planetCamera.position.x = lerp(planetCamera.position.x, targetX, 0.05);
+  planetCamera.position.y = lerp(planetCamera.position.y, targetY, 0.05);
+  planetCamera.lookAt(planet.position);
+  
+  planetRenderer.render(planetScene, planetCamera);
+}
+
+// ========================================
+// ГЛАВНЫЙ ЦИКЛ РЕНДЕРИНГА
+// ========================================
+function animate() {
+  requestAnimationFrame(animate);
+  const time = performance.now();
+  
+  animateHero();
+  animateObject();
+  animateWave(time);
+  animatePlanet();
+}
+animate();
+
+// ========================================
+// РЕСАЙЗ
+// ========================================
+window.addEventListener('resize', () => {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  
+  heroCamera.aspect = w / h;
+  heroCamera.updateProjectionMatrix();
+  heroRenderer.setSize(w, h);
+  
+  objectCamera.aspect = w / h;
+  objectCamera.updateProjectionMatrix();
+  objectRenderer.setSize(w, h);
+  
+  waveCamera.aspect = w / h;
+  waveCamera.updateProjectionMatrix();
+  waveRenderer.setSize(w, h);
+  
+  planetCamera.aspect = w / h;
+  planetCamera.updateProjectionMatrix();
+  planetRenderer.setSize(w, h);
+});
+
+// Плавный скролл
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
