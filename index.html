@@ -3,60 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚡ ULTIMATE 3D UNIVERSE ⚡</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<title>🔥 BEYOND REALITY 🔥</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    font-family: 'Arial', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #000;
     color: #fff;
     overflow-x: hidden;
     cursor: none;
   }
-  
-  /* === КАСТОМНЫЙ КУРСОР === */
-  .cursor {
+
+  /* ==== КУРСОР ==== */
+  .cursor-main {
     position: fixed;
-    width: 25px;
-    height: 25px;
-    border: 2px solid #00f0ff;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #fff;
     border-radius: 50%;
     pointer-events: none;
     z-index: 99999;
-    transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s;
-    box-shadow: 0 0 20px #00f0ff, inset 0 0 10px #00f0ff;
+    mix-blend-mode: difference;
+    transition: transform 0.15s ease, background 0.2s, border-color 0.2s;
   }
-  .cursor-dot {
+  .cursor-main.hover {
+    transform: scale(2.5);
+    background: #fff;
+  }
+  .cursor-trail {
     position: fixed;
     width: 6px;
     height: 6px;
-    background: #ff00e4;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 99999;
-    box-shadow: 0 0 15px #ff00e4;
-  }
-  .cursor.hover {
-    width: 60px;
-    height: 60px;
-    background: rgba(0, 240, 255, 0.2);
-    border-color: #ffd700;
-    box-shadow: 0 0 40px #ffd700, inset 0 0 20px #ffd700;
-  }
-  
-  /* === TRAIL ЧАСТИЦЫ ЗА КУРСОРОМ === */
-  .trail-particle {
-    position: fixed;
-    width: 8px;
-    height: 8px;
+    background: #00f0ff;
     border-radius: 50%;
     pointer-events: none;
     z-index: 99998;
+    box-shadow: 0 0 15px #00f0ff;
   }
-  
-  /* === НАВИГАЦИЯ === */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    z-index: 99997;
+  }
+
+  /* ==== ПРОГРЕСС БАР ==== */
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #00f0ff, #ff00e4, #ffd700, #00ff88);
+    z-index: 10000;
+    box-shadow: 0 0 20px #00f0ff;
+  }
+
+  /* ==== НАВИГАЦИЯ ==== */
   nav {
     position: fixed;
     top: 0;
@@ -66,315 +69,159 @@
     justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(20px);
-    background: rgba(0, 0, 0, 0.4);
-    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+    backdrop-filter: blur(30px) saturate(180%);
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
   .logo {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 900;
     background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700);
     background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: gradientMove 3s ease infinite;
-    letter-spacing: 3px;
+    animation: grad 3s ease infinite;
+    letter-spacing: 4px;
   }
-  @keyframes gradientMove {
+  @keyframes grad {
     0%, 100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
   }
-  .nav-links { display: flex; gap: 30px; list-style: none; }
+  .nav-links { display: flex; gap: 35px; list-style: none; }
   .nav-links a {
     color: #fff;
     text-decoration: none;
     font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
     position: relative;
     transition: color 0.3s;
-    font-size: 0.95rem;
   }
-  .nav-links a::after {
+  .nav-links a::before {
     content: '';
     position: absolute;
-    bottom: -5px;
+    bottom: -8px;
     left: 0;
     width: 0;
     height: 2px;
     background: linear-gradient(90deg, #00f0ff, #ff00e4);
-    transition: width 0.3s;
+    transition: width 0.4s;
     box-shadow: 0 0 10px #00f0ff;
   }
-  .nav-links a:hover::after { width: 100%; }
   .nav-links a:hover { color: #00f0ff; }
-  
-  /* === HERO === */
-  .hero {
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
-  }
+  .nav-links a:hover::before { width: 100%; }
+
+  /* ==== HERO С ФРАКТАЛЬНЫМ ШЕЙДЕРОМ ==== */
   #hero-canvas {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    z-index: 1;
+  }
+  .hero {
+    height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
   }
   .hero-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    position: relative;
     z-index: 10;
-    width: 90%;
   }
-  .glitch {
-    font-size: clamp(3rem, 10vw, 8rem);
+  .hero h1 {
+    font-size: clamp(3rem, 12vw, 10rem);
     font-weight: 900;
-    letter-spacing: 5px;
-    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700, #00ff88);
+    letter-spacing: -2px;
+    line-height: 0.9;
+    background: linear-gradient(45deg, #fff 0%, #00f0ff 30%, #ff00e4 60%, #ffd700 100%);
     background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: gradientMove 4s ease infinite;
-    text-transform: uppercase;
-    text-shadow: 0 0 80px rgba(0, 240, 255, 0.5);
+    animation: grad 5s ease infinite;
+    text-shadow: 0 0 100px rgba(0, 240, 255, 0.5);
     position: relative;
   }
-  .glitch::before, .glitch::after {
+  .hero h1::after {
     content: attr(data-text);
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700, #00ff88);
-    background-size: 300% 300%;
+    background: linear-gradient(45deg, #ff00e4, #00f0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    filter: blur(30px);
+    opacity: 0.7;
+    z-index: -1;
   }
-  .glitch::before {
-    animation: gradientMove 4s ease infinite, glitch1 3s infinite;
-    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-  }
-  .glitch::after {
-    animation: gradientMove 4s ease infinite, glitch2 3s infinite;
-    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-  }
-  @keyframes glitch1 {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-5px, 5px); }
-    40% { transform: translate(5px, -5px); }
-    60% { transform: translate(-3px, 3px); }
-    80% { transform: translate(3px, -3px); }
-  }
-  @keyframes glitch2 {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(5px, -5px); }
-    40% { transform: translate(-5px, 5px); }
-    60% { transform: translate(3px, -3px); }
-    80% { transform: translate(-3px, 3px); }
-  }
-  
-  .subtitle {
-    font-size: clamp(1rem, 2.5vw, 1.5rem);
+  .hero p {
     margin-top: 30px;
-    opacity: 0.9;
-    letter-spacing: 10px;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    letter-spacing: 12px;
+    opacity: 0.8;
     text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
   }
-  .cta-button {
-    margin-top: 50px;
-    padding: 20px 60px;
-    font-size: 1.1rem;
+  .cta {
+    margin-top: 60px;
+    padding: 22px 70px;
+    font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 4px;
+    letter-spacing: 5px;
     text-transform: uppercase;
     background: transparent;
     color: #fff;
-    border: 2px solid #00f0ff;
-    border-radius: 50px;
+    border: 2px solid;
+    border-image: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700) 1;
     cursor: none;
     position: relative;
     overflow: hidden;
     transition: all 0.4s;
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
   }
-  .cta-button::before {
+  .cta::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, #00f0ff, #ff00e4, #ffd700);
-    transition: left 0.5s;
+    inset: 0;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
     z-index: -1;
   }
-  .cta-button:hover::before { left: 0; }
-  .cta-button:hover { 
-    transform: scale(1.1);
-    box-shadow: 0 0 60px #00f0ff;
-    letter-spacing: 6px;
-  }
-  
-  .scroll-hint {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    text-align: center;
-    animation: bounce 2s infinite;
-  }
-  .scroll-hint span {
-    display: block;
-    width: 25px;
-    height: 40px;
-    border: 2px solid #00f0ff;
-    border-radius: 20px;
-    margin: 0 auto;
-    position: relative;
-    box-shadow: 0 0 10px #00f0ff;
-  }
-  .scroll-hint span::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    width: 4px;
-    height: 8px;
-    background: #00f0ff;
-    border-radius: 2px;
-    transform: translateX(-50%);
-    animation: scrollDot 2s infinite;
-  }
-  @keyframes scrollDot {
-    0% { transform: translate(-50%, 0); opacity: 1; }
-    100% { transform: translate(-50%, 20px); opacity: 0; }
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(-15px); }
-  }
-  
-  /* === 3D ОБЪЕКТ СЕКЦИЯ === */
-  .object-section {
-    height: 100vh;
-    position: relative;
-    background: linear-gradient(180deg, #000 0%, #0a001a 50%, #000 100%);
-    overflow: hidden;
-  }
-  #object-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .object-ui {
-    position: absolute;
-    top: 50%;
-    left: 5%;
-    transform: translateY(-50%);
-    z-index: 10;
-    max-width: 400px;
-  }
-  .object-ui h2 {
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    margin-bottom: 20px;
-    background: linear-gradient(45deg, #00f0ff, #ff00e4);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-  }
-  .object-ui p {
-    line-height: 1.8;
-    opacity: 0.8;
-    margin-bottom: 20px;
-  }
-  .object-stats {
-    display: flex;
-    gap: 30px;
-    margin-top: 30px;
-  }
-  .mini-stat {
-    text-align: center;
-  }
-  .mini-stat .num {
-    font-size: 2rem;
-    font-weight: 900;
-    color: #00f0ff;
-    text-shadow: 0 0 20px #00f0ff;
-  }
-  .mini-stat .label {
-    font-size: 0.75rem;
-    opacity: 0.6;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-top: 5px;
-  }
-  
-  .object-controls {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    display: flex;
-    gap: 15px;
-  }
-  .obj-btn {
-    padding: 12px 25px;
-    background: rgba(0, 240, 255, 0.1);
-    border: 1px solid #00f0ff;
-    color: #fff;
-    border-radius: 30px;
-    cursor: none;
-    font-size: 0.9rem;
-    transition: all 0.3s;
-    backdrop-filter: blur(10px);
-  }
-  .obj-btn:hover, .obj-btn.active {
-    background: #00f0ff;
-    color: #000;
-    box-shadow: 0 0 30px #00f0ff;
-    transform: scale(1.1);
-  }
-  
-  /* === 3D КАРТОЧКИ === */
-  .cards-section {
-    padding: 150px 50px;
-    background: #000;
-    position: relative;
-  }
-  .cards-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.1), transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(255, 0, 228, 0.1), transparent 50%);
+  .cta:hover { letter-spacing: 8px; }
+  .cta:hover::before { transform: translateX(0); }
+
+  /* ==== МАРТИНЕКС СЕТКА ==== */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
     pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+  }
+
+  /* ==== SECTIONS ==== */
+  section {
+    position: relative;
+    z-index: 5;
+    padding: 150px 50px;
   }
   .section-title {
     text-align: center;
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: clamp(2.5rem, 6vw, 5rem);
     font-weight: 900;
-    margin-bottom: 80px;
+    margin-bottom: 100px;
     text-transform: uppercase;
     letter-spacing: 5px;
-    position: relative;
-    z-index: 5;
   }
   .section-title span {
     background: linear-gradient(45deg, #00f0ff, #ff00e4);
@@ -382,275 +229,302 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .cards-3d-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px;
-    max-width: 1300px;
-    margin: 0 auto;
-    perspective: 2000px;
-  }
-  .card-3d {
+
+  /* ==== ИНТЕРАКТИВНЫЙ WEBGL 3D ==== */
+  #webgl-3d {
+    height: 100vh;
     position: relative;
-    height: 450px;
-    transform-style: preserve-3d;
-    transition: transform 0.1s;
-    cursor: none;
+    background: linear-gradient(180deg, #000, #0a001a, #000);
   }
-  .card-3d-face {
+  #scene-canvas {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 228, 0.05));
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 25px;
-    padding: 50px 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    overflow: hidden;
+    width: 100%;
+    height: 100%;
   }
-  .card-3d-face::before {
-    content: '';
+  .scene-ui {
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(from 0deg, transparent, #00f0ff, transparent 30%, transparent 60%, #ff00e4, transparent 90%);
-    animation: rotateBorder 6s linear infinite;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    z-index: 10;
+    max-width: 400px;
+  }
+  .scene-ui h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #00f0ff, #ff00e4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .scene-ui p { line-height: 1.8; opacity: 0.8; margin-bottom: 15px; }
+  .scene-controls {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    padding: 12px 24px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid #00f0ff;
+    color: #fff;
+    border-radius: 30px;
+    cursor: none;
+    font-size: 0.9rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+  .btn:hover, .btn.active {
+    background: #00f0ff;
+    color: #000;
+    box-shadow: 0 0 30px #00f0ff;
+    transform: scale(1.1);
+  }
+
+  /* ==== FLUID SIMULATION ==== */
+  #fluid {
+    height: 80vh;
+    position: relative;
+    background: #000;
+  }
+  #fluid-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .fluid-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    text-align: center;
+    pointer-events: none;
+  }
+  .fluid-text h2 {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 900;
+    letter-spacing: 8px;
+    text-shadow: 0 0 60px rgba(0, 240, 255, 0.8);
+    background: linear-gradient(45deg, #fff, #00f0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .fluid-text p {
+    margin-top: 20px;
+    letter-spacing: 5px;
     opacity: 0.6;
   }
-  .card-3d-face::after {
+
+  /* ==== КАРТОЧКИ С DEPT ==== */
+  .features {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+  }
+  .feat-card {
+    position: relative;
+    padding: 50px 40px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 228, 0.05));
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: all 0.4s;
+  }
+  .feat-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: conic-gradient(from var(--angle, 0deg), transparent, #00f0ff, transparent 30%, #ff00e4, transparent 60%, #ffd700, transparent);
+    border-radius: 25px;
+    z-index: -1;
+    animation: rotate 4s linear infinite;
+  }
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes rotate {
+    to { --angle: 360deg; }
+  }
+  .feat-card::after {
     content: '';
     position: absolute;
     inset: 2px;
-    background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%);
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
     border-radius: 23px;
-    z-index: 1;
+    z-index: -1;
   }
-  @keyframes rotateBorder {
-    100% { transform: rotate(360deg); }
+  .feat-card:hover {
+    transform: translateY(-15px) scale(1.02);
   }
-  .card-3d-content {
-    position: relative;
-    z-index: 2;
+  .feat-num {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 4rem;
+    font-weight: 900;
+    opacity: 0.1;
   }
-  .card-3d-icon {
-    font-size: 5rem;
-    margin-bottom: 25px;
-    display: block;
-    filter: drop-shadow(0 0 30px #00f0ff);
-    transition: transform 0.3s;
+  .feat-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    display: inline-block;
+    filter: drop-shadow(0 0 20px #00f0ff);
   }
-  .card-3d:hover .card-3d-icon {
-    transform: scale(1.3) rotateY(360deg);
-  }
-  .card-3d h3 {
-    font-size: 1.8rem;
+  .feat-card h3 {
+    font-size: 1.5rem;
     margin-bottom: 15px;
     background: linear-gradient(45deg, #00f0ff, #ff00e4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-transform: uppercase;
-    letter-spacing: 2px;
   }
-  .card-3d p {
-    opacity: 0.8;
-    line-height: 1.6;
-    font-size: 0.95rem;
-  }
-  .card-3d-num {
-    position: absolute;
-    top: 20px;
-    right: 25px;
-    font-size: 4rem;
-    font-weight: 900;
-    opacity: 0.15;
-    z-index: 2;
-  }
-  
-  /* === 3D WAVE GRID === */
-  .wave-section {
+  .feat-card p { opacity: 0.7; line-height: 1.6; }
+
+  /* ==== METABALLS ==== */
+  #metaballs {
     height: 100vh;
     position: relative;
-    background: radial-gradient(ellipse at center bottom, #1a0033 0%, #000 70%);
-    overflow: hidden;
+    background: radial-gradient(ellipse at center, #1a0033, #000);
   }
-  #wave-canvas {
+  #metaball-canvas {
+    width: 100%;
+    height: 100%;
+  }
+  .meta-overlay {
+    position: absolute;
+    top: 50%;
+    right: 8%;
+    transform: translateY(-50%);
+    z-index: 10;
+    max-width: 450px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(30px);
+    padding: 50px;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 0, 228, 0.3);
+  }
+  .meta-overlay h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #ff00e4, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .meta-overlay p { line-height: 1.8; opacity: 0.8; }
+
+  /* ==== КОНСТРУКТОР 3D СЦЕНЫ ==== */
+  #builder {
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(180deg, #000, #001a1a, #000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .builder-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .builder-3d {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
   }
-  .wave-overlay {
+  .builder-text {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    text-align: center;
     z-index: 10;
+    text-align: center;
     pointer-events: none;
   }
-  .wave-overlay h2 {
-    font-size: clamp(2.5rem, 6vw, 5rem);
+  .builder-text h2 {
+    font-size: clamp(3rem, 8vw, 6rem);
     font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 8px;
+    letter-spacing: 10px;
+    background: linear-gradient(45deg, #00f0ff, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: grad 3s ease infinite;
+    background-size: 300% 300%;
+  }
+  .builder-text p {
+    margin-top: 20px;
+    letter-spacing: 6px;
+    opacity: 0.6;
+  }
+
+  /* ==== STATS ==== */
+  .stats-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+  }
+  .stat {
+    text-align: center;
+    padding: 50px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    transition: all 0.4s;
+  }
+  .stat:hover {
+    background: rgba(0, 240, 255, 0.05);
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 30px 80px rgba(0, 240, 255, 0.3);
+  }
+  .stat-num {
+    font-size: 4rem;
+    font-weight: 900;
     background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700);
     background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: gradientMove 3s ease infinite;
-    text-shadow: 0 0 60px rgba(255, 0, 228, 0.5);
-  }
-  .wave-overlay p {
-    margin-top: 20px;
-    letter-spacing: 5px;
-    opacity: 0.7;
-    text-transform: uppercase;
-  }
-  
-  /* === 3D ПЛАНЕТА === */
-  .planet-section {
-    height: 100vh;
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: radial-gradient(ellipse at center, #1a0033 0%, #000 100%);
-    overflow: hidden;
-  }
-  #planet-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .planet-text {
-    position: relative;
-    z-index: 10;
-    text-align: right;
-    margin-left: auto;
-    margin-right: 8%;
-    max-width: 500px;
-  }
-  .planet-text h2 {
-    font-size: clamp(2rem, 5vw, 4rem);
-    margin-bottom: 20px;
-    background: linear-gradient(45deg, #ffd700, #ff00e4);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-  }
-  .planet-text p { line-height: 1.8; opacity: 0.8; }
-  .planet-features {
-    margin-top: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  .planet-feature {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 10px 20px;
-    background: rgba(255, 215, 0, 0.05);
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s;
-  }
-  .planet-feature:hover {
-    background: rgba(255, 215, 0, 0.15);
-    transform: translateX(-10px);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-  }
-  .planet-feature .icon { font-size: 1.5rem; }
-  .planet-feature .text { flex: 1; }
-  
-  /* === МОРФИНГ ТЕКСТ === */
-  .morph-section {
-    height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    position: relative;
-    overflow: hidden;
-  }
-  .morph-text {
-    font-size: clamp(4rem, 15vw, 12rem);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 10px;
-    background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700, #00ff88, #00f0ff);
-    background-size: 400% 400%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: gradientMove 5s ease infinite;
-    filter: drop-shadow(0 0 40px rgba(0, 240, 255, 0.5));
-  }
-  
-  /* === СТАТИСТИКА === */
-  .stats-section {
-    padding: 100px 50px;
-    background: linear-gradient(180deg, #000, #0a0a2e, #000);
-  }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .stat-item {
-    text-align: center;
-    padding: 40px 20px;
-    background: rgba(0, 240, 255, 0.03);
-    border: 1px solid rgba(0, 240, 255, 0.2);
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s;
-  }
-  .stat-item:hover {
-    transform: translateY(-10px) scale(1.05);
-    background: rgba(0, 240, 255, 0.08);
-    box-shadow: 0 20px 60px rgba(0, 240, 255, 0.3);
-  }
-  .stat-num {
-    font-size: 3.5rem;
-    font-weight: 900;
-    background: linear-gradient(45deg, #00f0ff, #ff00e4);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    animation: grad 3s ease infinite;
   }
   .stat-label {
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    opacity: 0.7;
     margin-top: 10px;
-    font-size: 0.85rem;
+    letter-spacing: 4px;
+    opacity: 0.6;
+    text-transform: uppercase;
+    font-size: 0.8rem;
   }
-  
-  /* === FOOTER === */
+
+  /* ==== FOOTER ==== */
   footer {
-    padding: 80px 50px 40px;
-    background: radial-gradient(ellipse at center top, #0a0a2e 0%, #000 70%);
+    padding: 100px 50px 50px;
+    background: radial-gradient(ellipse at center top, #0a0a2e, #000);
     text-align: center;
     position: relative;
+    z-index: 5;
   }
   .footer-logo {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 900;
     margin-bottom: 30px;
     background: linear-gradient(45deg, #00f0ff, #ff00e4, #ffd700);
@@ -658,16 +532,17 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: gradientMove 3s ease infinite;
-    letter-spacing: 5px;
+    animation: grad 3s ease infinite;
+    letter-spacing: 8px;
   }
-  .social-grid {
+  .socials {
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin: 30px 0;
+    margin: 40px 0;
+    flex-wrap: wrap;
   }
-  .social-btn {
+  .social {
     width: 60px;
     height: 60px;
     border: 1px solid rgba(0, 240, 255, 0.3);
@@ -676,929 +551,1366 @@
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    transition: all 0.3s;
+    transition: all 0.4s;
     cursor: none;
   }
-  .social-btn:hover {
+  .social:hover {
     background: linear-gradient(45deg, #00f0ff, #ff00e4);
-    transform: translateY(-5px) rotate(360deg);
-    box-shadow: 0 0 30px #00f0ff;
+    transform: translateY(-8px) rotate(360deg);
+    box-shadow: 0 10px 40px #00f0ff;
   }
-  .footer-text { opacity: 0.5; margin-top: 20px; font-size: 0.9rem; }
-  
-  /* === АНИМАЦИИ ПОЯВЛЕНИЯ === */
+
   .reveal {
     opacity: 0;
     transform: translateY(60px);
     transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
   }
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  /* === ПРОГРЕСС БАР СКРОЛЛА === */
-  .progress-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #00f0ff, #ff00e4, #ffd700);
-    z-index: 10000;
-    box-shadow: 0 0 10px #00f0ff;
-  }
-  
-  /* === АДАПТИВ === */
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
   @media (max-width: 768px) {
     nav { padding: 15px 20px; }
     .nav-links { display: none; }
-    section, .cards-section, .stats-section { padding: 80px 20px; }
-    .object-ui, .planet-text {
+    section { padding: 100px 20px; }
+    .scene-ui, .meta-overlay {
       left: 5%;
       right: 5%;
       max-width: 90%;
-      text-align: center;
     }
-    .planet-text { text-align: center; margin: 0 auto; }
-    .wave-overlay h2 { letter-spacing: 3px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Прогресс бар -->
-<div class="progress-bar" id="progressBar"></div>
+<div class="progress" id="progress"></div>
+<div class="cursor-main" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+<div class="grid-bg"></div>
 
-<!-- Кастомный курсор -->
-<div class="cursor" id="cursor"></div>
-<div class="cursor-dot" id="cursorDot"></div>
-
-<!-- Навигация -->
 <nav>
   <div class="logo">⚡ NEXUS</div>
   <ul class="nav-links">
     <li><a href="#hero">Главная</a></li>
-    <li><a href="#object">3D Объект</a></li>
-    <li><a href="#cards">Карточки</a></li>
-    <li><a href="#wave">Волны</a></li>
-    <li><a href="#planet">Планета</a></li>
-    <li><a href="#footer">Контакты</a></li>
+    <li><a href="#webgl-3d">3D</a></li>
+    <li><a href="#fluid">Жидкость</a></li>
+    <li><a href="#features">Фичи</a></li>
+    <li><a href="#metaballs">Метаболы</a></li>
+    <li><a href="#builder">Конструктор</a></li>
   </ul>
 </nav>
 
-<!-- === HERO С 3D ГАЛАКТИКОЙ === -->
+<!-- ====== HERO С ФРАКТАЛЬНЫМ ШЕЙДЕРОМ ====== -->
 <section class="hero" id="hero">
   <canvas id="hero-canvas"></canvas>
   <div class="hero-content">
-    <h1 class="glitch" data-text="БУДУЩЕЕ 3D">БУДУЩЕЕ 3D</h1>
-    <p class="subtitle">WebGL • Three.js • Шейдеры • Математика</p>
-    <button class="cta-button">Погрузиться ↓</button>
-  </div>
-  <div class="scroll-hint"><span></span></div>
-</section>
-
-<!-- === 3D ИНТЕРАКТИВНЫЙ ОБЪЕКТ === -->
-<section class="object-section" id="object">
-  <canvas id="object-canvas"></canvas>
-  <div class="object-ui">
-    <h2>⚛ Квантовый Объект</h2>
-    <p>Вращай мышью. 3D модель реагирует на каждое движение с физикой отражений и динамическим освещением.</p>
-    <p>Ты видишь реальный WebGL рендер с шейдерами, попиксельным освещением и пост-обработкой.</p>
-    <div class="object-stats">
-      <div class="mini-stat">
-        <div class="num">60</div>
-        <div class="label">FPS</div>
-      </div>
-      <div class="mini-stat">
-        <div class="num">∞</div>
-        <div class="label">Полигонов</div>
-      </div>
-      <div class="mini-stat">
-        <div class="num">3D</div>
-        <div class="label">Real-time</div>
-      </div>
-    </div>
-  </div>
-  <div class="object-controls">
-    <button class="obj-btn active" data-shape="torus">Тор</button>
-    <button class="obj-btn" data-shape="knot">Узел</button>
-    <button class="obj-btn" data-shape="icosa">Икосаэдр</button>
-    <button class="obj-btn" data-shape="sphere">Сфера</button>
+    <h1 data-text="ЗА ГРАНЬЮ">ЗА ГРАНЬЮ</h1>
+    <p>WebGL • Шейдеры • Физика • Генеративное Искусство</p>
+    <button class="cta" onclick="document.getElementById('webgl-3d').scrollIntoView({behavior:'smooth'})">
+      В ГЛУБИНЫ ↓
+    </button>
   </div>
 </section>
 
-<!-- === 3D КАРТОЧКИ === -->
-<section class="cards-section" id="cards">
-  <h2 class="section-title reveal"><span>Возможности</span></h2>
-  <div class="cards-3d-container">
-    <div class="card-3d reveal">
-      <div class="card-3d-face">
-        <div class="card-3d-num">01</div>
-        <div class="card-3d-content">
-          <div class="card-3d-icon">🌌</div>
-          <h3>3D Галактика</h3>
-          <p>10000+ частиц, вращающихся вокруг центра. Реалистичная физика гравитации и взаимодействия.</p>
-        </div>
-      </div>
+<!-- ====== ИНТЕРАКТИВНАЯ 3D СЦЕНА ====== -->
+<section id="webgl-3d">
+  <canvas id="scene-canvas"></canvas>
+  <div class="scene-ui">
+    <h2>⚛ Квантовый Реактор</h2>
+    <p>Полноценный 3D движок на чистом WebGL. Вершинные и фрагментные шейдеры, динамическое освещение, тени, рейкастинг мыши, физика частиц.</p>
+    <p>Ты можешь вращать камеру и переключать объекты. Это не Three.js — это ручной WebGL код с шейдерами.</p>
+  </div>
+  <div class="scene-controls">
+    <button class="btn active" data-shape="cube">Куб</button>
+    <button class="btn" data-shape="sphere">Сфера</button>
+    <button class="btn" data-shape="torus">Тор</button>
+    <button class="btn" data-shape="knot">Узел</button>
+    <button class="btn" data-shape="icosa">Икосаэдр</button>
+    <button class="btn" data-shape="icosa2">Икоса2</button>
+    <button class="btn" data-shape="cylinder">Цилиндр</button>
+    <button class="btn" data-shape="cone">Конус</button>
+  </div>
+</section>
+
+<!-- ====== ЖИДКОСТНАЯ СИМУЛЯЦИЯ ====== -->
+<section id="fluid">
+  <canvas id="fluid-canvas"></canvas>
+  <div class="fluid-text">
+    <h2>NAVIER-STOKES</h2>
+    <p>Жидкостная симуляция в реальном времени</p>
+  </div>
+</section>
+
+<!-- ====== ФИЧИ ====== -->
+<section id="features">
+  <h2 class="section-title reveal"><span>Технологии</span></h2>
+  <div class="features">
+    <div class="feat-card reveal">
+      <div class="feat-num">01</div>
+      <div class="feat-icon">🌌</div>
+      <h3>Фрактальные Шейдеры</h3>
+      <p>Реалистичные фракталы Мандельброта, бесконечные туннели, цветовые пространства HSV через GLSL.</p>
     </div>
-    <div class="card-3d reveal">
-      <div class="card-3d-face">
-        <div class="card-3d-num">02</div>
-        <div class="card-3d-content">
-          <div class="card-3d-icon">⚡</div>
-          <h3>Шейдеры GLSL</h3>
-          <p>Кастомные вершинные и фрагментные шейдеры для невозможных визуальных эффектов.</p>
-        </div>
-      </div>
+    <div class="feat-card reveal">
+      <div class="feat-num">02</div>
+      <div class="feat-icon">💧</div>
+      <h3>Жидкостная Динамика</h3>
+      <p>Уравнения Навье-Стокса в реальном времени. Идеальная симуляция воды и дыма.</p>
     </div>
-    <div class="card-3d reveal">
-      <div class="card-3d-face">
-        <div class="card-3d-num">03</div>
-        <div class="card-3d-content">
-          <div class="card-3d-icon">🎮</div>
-          <h3>Интерактив</h3>
-          <p>Каждый объект реагирует на мышь с физикой. Полное погружение в 3D пространство.</p>
-        </div>
-      </div>
+    <div class="feat-card reveal">
+      <div class="feat-num">03</div>
+      <div class="feat-icon">⚛</div>
+      <h3>3D Физика</h3>
+      <p>Гравитация, столкновения, верёвки, мягкие тела. Собственный физический движок.</p>
     </div>
-    <div class="card-3d reveal">
-      <div class="card-3d-face">
-        <div class="card-3d-num">04</div>
-        <div class="card-3d-content">
-          <div class="card-3d-icon">🌊</div>
-          <h3>Волновая Сетка</h3>
-          <p>Тысячи кубов создают живой 3D ландшафт, реагирующий на движение.</p>
-        </div>
-      </div>
+    <div class="feat-card reveal">
+      <div class="feat-num">04</div>
+      <div class="feat-icon">🌀</div>
+      <h3>Метаболы</h3>
+      <p>Marching Squares алгоритм для идеально гладких изолиний и капель.</p>
     </div>
-    <div class="card-3d reveal">
-      <div class="card-3d-face">
-        <div class="card-3d-num">05</div>
-        <div class="card-3d-content">
-          <div class="card-3d-icon">🪐</div>
-          <h3>3D Планета</h3>
-          <p>Текстурированная сфера с динамическим освещением и атмосферой.</p>
-        </div>
-      </div>
+    <div class="feat-card reveal">
+      <div class="feat-num">05</div>
+      <div class="feat-icon">✨</div>
+      <h3>Пост-обработка</h3>
+      <p>Bloom, DOF, Motion Blur, Chromatic Aberration, Glitch. Кинематографичная картинка.</p>
     </div>
-    <div class="card-3d reveal">
-      <div class="card-3d-face">
-        <div class="card-3d-num">06</div>
-        <div class="card-3d-content">
-          <div class="card-3d-icon">✨</div>
-          <h3>Пост-обработка</h3>
-          <p>Bloom, цветокоррекция, глитч-эффекты. Кинематографичное качество картинки.</p>
-        </div>
-      </div>
+    <div class="feat-card reveal">
+      <div class="feat-num">06</div>
+      <div class="feat-icon">🎮</div>
+      <h3>Raycasting</h3>
+      <p>Точная система лучей для отслеживания мыши в 3D пространстве и интерактивных объектов.</p>
     </div>
   </div>
 </section>
 
-<!-- === 3D WAVE GRID === -->
-<section class="wave-section" id="wave">
-  <canvas id="wave-canvas"></canvas>
-  <div class="wave-overlay">
-    <h2>OCEAN OF CODE</h2>
-    <p>Двигай мышью — создавай волны</p>
+<!-- ====== METABALLS ====== -->
+<section id="metaballs">
+  <canvas id="metaball-canvas"></canvas>
+  <div class="meta-overlay">
+    <h2>🫧 Метаболы</h2>
+    <p>Алгоритм Marching Squares создаёт идеально гладкие изолинии. Двигай мышью — капли сливаются в жидкость.</p>
   </div>
 </section>
 
-<!-- === 3D ПЛАНЕТА === -->
-<section class="planet-section" id="planet">
-  <canvas id="planet-canvas"></canvas>
-  <div class="planet-text">
-    <h2>🪐 Новая Эра</h2>
-    <p>Сайты больше не плоские. Это полноценные 3D миры, которые можно исследовать. WebGL даёт безграничные возможности.</p>
-    <div class="planet-features">
-      <div class="planet-feature">
-        <span class="icon">🎨</span>
-        <span class="text">Кастомные шейдеры и материалы</span>
-      </div>
-      <div class="planet-feature">
-        <span class="icon">⚙️</span>
-        <span class="text">Реальная физика и математика</span>
-      </div>
-      <div class="planet-feature">
-        <span class="icon">🚀</span>
-        <span class="text">60 FPS на любом устройстве</span>
-      </div>
-      <div class="planet-feature">
-        <span class="icon">💎</span>
-        <span class="text">Кинематографичная графика</span>
-      </div>
+<!-- ====== КОНСТРУКТОР 3D ====== -->
+<section id="builder">
+  <div class="builder-container">
+    <canvas class="builder-3d" id="builder-canvas"></canvas>
+    <div class="builder-text">
+      <h2>СОБИРАЙ</h2>
+      <p>Кликай по сцене — создавай кубы</p>
     </div>
   </div>
 </section>
 
-<!-- === МОРФИНГ ТЕКСТ === -->
-<section class="morph-section">
-  <h2 class="morph-text">∞ NEXUS</h2>
-</section>
-
-<!-- === СТАТИСТИКА === -->
+<!-- ====== СТАТИСТИКА ====== -->
 <section class="stats-section">
+  <h2 class="section-title reveal"><span>В Цифрах</span></h2>
   <div class="stats-grid">
-    <div class="stat-item reveal">
-      <div class="stat-num" data-target="50000">0</div>
+    <div class="stat reveal">
+      <div class="stat-num" data-target="100000">0</div>
       <div class="stat-label">Строк кода</div>
     </div>
-    <div class="stat-item reveal">
-      <div class="stat-num" data-target="100000">0</div>
-      <div class="stat-label">3D Объектов</div>
+    <div class="stat reveal">
+      <div class="stat-num" data-target="50">0</div>
+      <div class="stat-label">Шейдеров</div>
     </div>
-    <div class="stat-item reveal">
+    <div class="stat reveal">
+      <div class="stat-num" data-target="1000000">0</div>
+      <div class="stat-label">Частиц</div>
+    </div>
+    <div class="stat reveal">
       <div class="stat-num" data-target="60">0</div>
       <div class="stat-label">FPS</div>
     </div>
-    <div class="stat-item reveal">
-      <div class="stat-num" data-target="999">0</div>
-      <div class="stat-label">% Крутости</div>
-    </div>
   </div>
 </section>
 
-<!-- === FOOTER === -->
-<footer id="footer">
+<!-- ====== FOOTER ====== -->
+<footer>
   <div class="footer-logo">⚡ NEXUS</div>
-  <p style="opacity: 0.7; max-width: 600px; margin: 0 auto;">Создано с использованием Three.js, GLSL шейдеров, WebGL, Canvas API и безумного количества кофе ☕</p>
-  <div class="social-grid">
-    <a href="#" class="social-btn">📘</a>
-    <a href="#" class="social-btn">🐦</a>
-    <a href="#" class="social-btn">📷</a>
-    <a href="#" class="social-btn">💼</a>
-    <a href="#" class="social-btn">🐙</a>
-    <a href="#" class="social-btn">▶️</a>
+  <p style="opacity:0.7; max-width:700px; margin:0 auto;">Чистый WebGL, GLSL шейдеры, физические симуляции, генеративные алгоритмы. Без библиотек.</p>
+  <div class="socials">
+    <a href="#" class="social">📘</a>
+    <a href="#" class="social">🐦</a>
+    <a href="#" class="social">📷</a>
+    <a href="#" class="social">💼</a>
+    <a href="#" class="social">🐙</a>
+    <a href="#" class="social">▶️</a>
+    <a href="#" class="social">🎮</a>
+    <a href="#" class="social">🎨</a>
   </div>
-  <p class="footer-text">© 2026 NEXUS — Будущее уже здесь</p>
+  <p style="opacity:0.4; margin-top:30px; font-size:0.9rem;">© 2026 NEXUS — Создано на чистом коде</p>
 </footer>
 
 <script>
-// ========================================
+// ============================================
 // УТИЛИТЫ
-// ========================================
+// ============================================
 const lerp = (a, b, t) => a + (b - a) * t;
-const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
-const mouse3D = new THREE.Vector2();
-const clock = new THREE.Clock();
+const mouse = { x: 0, y: 0, tx: 0, ty: 0, down: false };
+const clock = { last: performance.now(), delta: 0 };
 
-// Кастомный курсор
+// ============================================
+// КАСТОМНЫЙ КУРСОР С ЧАСТИЦАМИ
+// ============================================
 const cursor = document.getElementById('cursor');
-const cursorDot = document.getElementById('cursorDot');
+const cursorTrail = document.getElementById('cursorTrail');
+let trailCount = 0;
+
 document.addEventListener('mousemove', e => {
   mouse.tx = e.clientX;
   mouse.ty = e.clientY;
-  cursor.style.left = e.clientX - 12 + 'px';
-  cursor.style.top = e.clientY - 12 + 'px';
-  cursorDot.style.left = e.clientX - 3 + 'px';
-  cursorDot.style.top = e.clientY - 3 + 'px';
+  cursor.style.transform = `translate(${e.clientX - 15}px, ${e.clientY - 15}px)`;
+  cursorTrail.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 3}px)`;
   
-  // Создание частицы-следа
-  if (Math.random() > 0.5) {
+  // Частицы за курсором
+  if (trailCount < 3) {
+    trailCount++;
+    setTimeout(() => trailCount--, 30);
+    const colors = ['#00f0ff', '#ff00e4', '#ffd700', '#00ff88'];
     const p = document.createElement('div');
-    p.className = 'trail-particle';
-    p.style.left = e.clientX - 4 + 'px';
-    p.style.top = e.clientY - 4 + 'px';
-    p.style.background = Math.random() > 0.5 ? '#00f0ff' : '#ff00e4';
-    p.style.boxShadow = `0 0 10px ${p.style.background}`;
-    p.style.transition = 'all 0.8s';
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = (e.clientX - size/2) + 'px';
+    p.style.top = (e.clientY - size/2) + 'px';
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    p.style.background = c;
+    p.style.boxShadow = `0 0 ${size * 3}px ${c}`;
+    p.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
     document.body.appendChild(p);
     requestAnimationFrame(() => {
-      p.style.transform = `translate(${(Math.random()-0.5)*50}px, ${(Math.random()-0.5)*50}px) scale(0)`;
+      p.style.transform = `translate(${(Math.random() - 0.5) * 80}px, ${(Math.random() - 0.5) * 80}px) scale(0)`;
       p.style.opacity = '0';
     });
     setTimeout(() => p.remove(), 800);
   }
 });
-document.querySelectorAll('a, button, .card-3d').forEach(el => {
+
+document.querySelectorAll('a, button, .feat-card').forEach(el => {
   el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
   el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
 });
 
-// Плавное движение мыши
+document.addEventListener('mousedown', () => mouse.down = true);
+document.addEventListener('mouseup', () => mouse.down = false);
+
 function updateMouse() {
-  mouse.x = lerp(mouse.x, mouse.tx, 0.1);
-  mouse.y = lerp(mouse.y, mouse.ty, 0.1);
+  mouse.x = lerp(mouse.x, mouse.tx, 0.15);
+  mouse.y = lerp(mouse.y, mouse.ty, 0.15);
   requestAnimationFrame(updateMouse);
 }
 updateMouse();
 
-// Прогресс бар скролла
-window.addEventListener('scroll', () => {
-  const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-  document.getElementById('progressBar').style.width = scrolled + '%';
+// Параллакс сетки
+document.addEventListener('mousemove', e => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 20;
+  const y = (e.clientY / window.innerHeight - 0.5) * 20;
+  document.querySelector('.grid-bg').style.transform = `translate(${x}px, ${y}px)`;
 });
 
-// Reveal анимации
-const revealObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) entry.target.classList.add('visible');
-  });
-}, { threshold: 0.15 });
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+// ============================================
+// ПРОГРЕСС БАР
+// ============================================
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('progress').style.width = scrolled + '%';
+});
 
-// Счетчики
-const counterObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const el = entry.target;
-      const target = parseInt(el.dataset.target);
-      let current = 0;
-      const step = target / 60;
+// Reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Счётчики
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !e.target.dataset.done) {
+      e.target.dataset.done = '1';
+      const target = parseInt(e.target.dataset.target);
+      let cur = 0;
+      const step = target / 80;
+      const suffix = target >= 1000 ? '+' : '+';
       const timer = setInterval(() => {
-        current += step;
-        if (current >= target) {
-          current = target;
-          clearInterval(timer);
-        }
-        el.textContent = Math.floor(current).toLocaleString() + (target === 60 ? '' : '+');
-      }, 30);
+        cur += step;
+        if (cur >= target) { cur = target; clearInterval(timer); }
+        if (target >= 1000000) e.target.textContent = (cur / 1000000).toFixed(1) + 'M' + suffix;
+        else if (target >= 1000) e.target.textContent = Math.floor(cur / 1000) + 'K' + suffix;
+        else e.target.textContent = Math.floor(cur) + suffix;
+      }, 25);
     }
   });
 }, { threshold: 0.5 });
-document.querySelectorAll('.stat-num').forEach(el => counterObserver.observe(el));
+document.querySelectorAll('.stat-num').forEach(el => counterObs.observe(el));
 
-// ========================================
-// 3D СЦЕНА 1: HERO - ГАЛАКТИКА
-// ========================================
-const heroScene = new THREE.Scene();
-const heroCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-const heroRenderer = new THREE.WebGLRenderer({ 
-  canvas: document.getElementById('hero-canvas'),
-  antialias: true, 
-  alpha: true 
-});
-heroRenderer.setSize(window.innerWidth, window.innerHeight);
-heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-// Создание галактики
-const galaxyCount = 8000;
-const galaxyPositions = new Float32Array(galaxyCount * 3);
-const galaxyColors = new Float32Array(galaxyCount * 3);
-const galaxySizes = new Float32Array(galaxyCount);
-
-const colorInside = new THREE.Color(0xff00e4);
-const colorOutside = new THREE.Color(0x00f0ff);
-
-for (let i = 0; i < galaxyCount; i++) {
-  const radius = Math.random() * 50;
-  const spinAngle = radius * 0.3;
-  const branchAngle = (i % 3) * (Math.PI * 2 / 3);
-  
-  const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
-  const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
-  const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
-  
-  galaxyPositions[i*3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-  galaxyPositions[i*3+1] = randomY * 2;
-  galaxyPositions[i*3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-  
-  const mixedColor = colorInside.clone().lerp(colorOutside, radius / 50);
-  galaxyColors[i*3] = mixedColor.r;
-  galaxyColors[i*3+1] = mixedColor.g;
-  galaxyColors[i*3+2] = mixedColor.b;
-  
-  galaxySizes[i] = Math.random() * 0.3 + 0.05;
-}
-
-const galaxyGeometry = new THREE.BufferGeometry();
-galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(galaxyPositions, 3));
-galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
-galaxyGeometry.setAttribute('size', new THREE.BufferAttribute(galaxySizes, 1));
-
-// Шейдер для частиц
-const galaxyMaterial = new THREE.ShaderMaterial({
-  uniforms: { uTime: { value: 0 } },
-  vertexShader: `
-    attribute float size;
-    attribute vec3 color;
-    varying vec3 vColor;
-    uniform float uTime;
-    void main() {
-      vColor = color;
-      vec3 pos = position;
-      pos.y += sin(uTime * 0.5 + position.x * 0.1) * 0.5;
-      vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-      gl_PointSize = size * (300.0 / -mvPosition.z);
-      gl_Position = projectionMatrix * mvPosition;
-    }
-  `,
-  fragmentShader: `
-    varying vec3 vColor;
-    void main() {
-      float dist = distance(gl_PointCoord, vec2(0.5));
-      if (dist > 0.5) discard;
-      float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-      gl_FragColor = vec4(vColor, alpha);
-    }
-  `,
-  transparent: true,
-  blending: THREE.AdditiveBlending,
-  depthWrite: false
-});
-
-const galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
-heroScene.add(galaxy);
-
-// Центральное свечение
-const centerGlow = new THREE.Mesh(
-  new THREE.SphereGeometry(3, 32, 32),
-  new THREE.MeshBasicMaterial({ 
-    color: 0xff00e4, 
-    transparent: true, 
-    opacity: 0.6 
-  })
-);
-heroScene.add(centerGlow);
-
-// Второе кольцо
-const ringGeometry = new THREE.BufferGeometry();
-const ringCount = 3000;
-const ringPos = new Float32Array(ringCount * 3);
-for (let i = 0; i < ringCount; i++) {
-  const angle = (i / ringCount) * Math.PI * 2;
-  const radius = 25 + Math.random() * 15;
-  ringPos[i*3] = Math.cos(angle) * radius;
-  ringPos[i*3+1] = (Math.random() - 0.5) * 0.5;
-  ringPos[i*3+2] = Math.sin(angle) * radius;
-}
-ringGeometry.setAttribute('position', new THREE.BufferAttribute(ringPos, 3));
-const ring = new THREE.Points(ringGeometry, new THREE.PointsMaterial({
-  size: 0.1,
-  color: 0x00f0ff,
-  transparent: true,
-  opacity: 0.7,
-  blending: THREE.AdditiveBlending
-}));
-heroScene.add(ring);
-
-heroCamera.position.z = 60;
-
-// Анимация hero
-function animateHero() {
-  const elapsed = clock.getElapsedTime();
-  galaxyMaterial.uniforms.uTime.value = elapsed;
-  galaxy.rotation.y = elapsed * 0.05;
-  ring.rotation.y = -elapsed * 0.1;
-  ring.rotation.x = Math.sin(elapsed * 0.2) * 0.1;
-  centerGlow.scale.setScalar(1 + Math.sin(elapsed * 2) * 0.1);
-  
-  // Камера реагирует на мышь
-  const targetX = (mouse.x / window.innerWidth - 0.5) * 10;
-  const targetY = -(mouse.y / window.innerHeight - 0.5) * 5;
-  heroCamera.position.x = lerp(heroCamera.position.x, targetX, 0.05);
-  heroCamera.position.y = lerp(heroCamera.position.y, targetY, 0.05);
-  heroCamera.lookAt(0, 0, 0);
-  
-  heroRenderer.render(heroScene, heroCamera);
-}
-
-// ========================================
-// 3D СЦЕНА 2: ИНТЕРАКТИВНЫЙ ОБЪЕКТ
-// ========================================
-const objectScene = new THREE.Scene();
-const objectCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-const objectRenderer = new THREE.WebGLRenderer({ 
-  canvas: document.getElementById('object-canvas'),
-  antialias: true, 
-  alpha: true 
-});
-objectRenderer.setSize(window.innerWidth, window.innerHeight);
-objectRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-// Освещение
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-objectScene.add(ambientLight);
-const pointLight1 = new THREE.PointLight(0x00f0ff, 2, 100);
-pointLight1.position.set(10, 10, 10);
-objectScene.add(pointLight1);
-const pointLight2 = new THREE.PointLight(0xff00e4, 2, 100);
-pointLight2.position.set(-10, -10, 10);
-objectScene.add(pointLight2);
-const pointLight3 = new THREE.PointLight(0xffd700, 1.5, 100);
-pointLight3.position.set(0, 10, -10);
-objectScene.add(pointLight3);
-
-let currentShape;
-let shapes = {};
-
-function createShapes() {
-  // Тор
-  const torus = new THREE.Mesh(
-    new THREE.TorusGeometry(2, 0.7, 32, 100),
-    new THREE.MeshStandardMaterial({ 
-      color: 0x00f0ff, 
-      metalness: 0.8, 
-      roughness: 0.2,
-      emissive: 0x00f0ff,
-      emissiveIntensity: 0.2
-    })
-  );
-  shapes.torus = torus;
-  objectScene.add(torus);
-  
-  // Узел
-  const knot = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(2, 0.5, 100, 16),
-    new THREE.MeshStandardMaterial({ 
-      color: 0xff00e4, 
-      metalness: 0.8, 
-      roughness: 0.2,
-      emissive: 0xff00e4,
-      emissiveIntensity: 0.2
-    })
-  );
-  shapes.knot = knot;
-  knot.visible = false;
-  objectScene.add(knot);
-  
-  // Икосаэдр
-  const icosa = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(2, 0),
-    new THREE.MeshStandardMaterial({ 
-      color: 0xffd700, 
-      metalness: 0.8, 
-      roughness: 0.2,
-      emissive: 0xffd700,
-      emissiveIntensity: 0.2,
-      flatShading: true
-    })
-  );
-  shapes.icosa = icosa;
-  icosa.visible = false;
-  objectScene.add(icosa);
-  
-  // Сфера
-  const sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(2, 64, 64),
-    new THREE.MeshStandardMaterial({ 
-      color: 0x00ff88, 
-      metalness: 0.9, 
-      roughness: 0.1,
-      emissive: 0x00ff88,
-      emissiveIntensity: 0.2
-    })
-  );
-  shapes.sphere = sphere;
-  sphere.visible = false;
-  objectScene.add(sphere);
-  
-  currentShape = torus;
-}
-createShapes();
-
-// Частицы вокруг объекта
-const objectParticles = new THREE.BufferGeometry();
-const objPartCount = 2000;
-const objPartPos = new Float32Array(objPartCount * 3);
-for (let i = 0; i < objPartCount; i++) {
-  const theta = Math.random() * Math.PI * 2;
-  const phi = Math.acos(2 * Math.random() - 1);
-  const r = 5 + Math.random() * 5;
-  objPartPos[i*3] = r * Math.sin(phi) * Math.cos(theta);
-  objPartPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-  objPartPos[i*3+2] = r * Math.cos(phi);
-}
-objectParticles.setAttribute('position', new THREE.BufferAttribute(objPartPos, 3));
-const objectParticleSystem = new THREE.Points(objectParticles, new THREE.PointsMaterial({
-  size: 0.05,
-  color: 0xffffff,
-  transparent: true,
-  opacity: 0.8,
-  blending: THREE.AdditiveBlending
-}));
-objectScene.add(objectParticleSystem);
-
-objectCamera.position.z = 8;
-
-// Управление формой
-document.querySelectorAll('.obj-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.obj-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    Object.values(shapes).forEach(s => s.visible = false);
-    const shape = btn.dataset.shape;
-    currentShape = shapes[shape];
-    currentShape.visible = true;
+// Плавный скролл
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
   });
 });
 
-function animateObject() {
-  const elapsed = clock.getElapsedTime();
-  
-  // Вращение объекта
-  if (currentShape) {
-    currentShape.rotation.x = elapsed * 0.3;
-    currentShape.rotation.y = elapsed * 0.4;
-    
-    // Реакция на мышь
-    const targetRotX = (mouse.y / window.innerHeight - 0.5) * Math.PI;
-    const targetRotY = (mouse.x / window.innerWidth - 0.5) * Math.PI;
-    currentShape.rotation.x = lerp(currentShape.rotation.x, targetRotX, 0.05);
-    currentShape.rotation.y = lerp(currentShape.rotation.y, targetRotY, 0.05);
+// ============================================
+// WEBGL HELPER FUNCTIONS
+// ============================================
+function createShader(gl, type, source) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, source);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    console.error(gl.getShaderInfoLog(s));
+    gl.deleteShader(s);
+    return null;
   }
-  
-  // Вращение частиц
-  objectParticleSystem.rotation.y = -elapsed * 0.1;
-  objectParticleSystem.rotation.x = elapsed * 0.05;
-  
-  // Движение света
-  pointLight1.position.x = Math.sin(elapsed) * 10;
-  pointLight1.position.y = Math.cos(elapsed) * 10;
-  pointLight2.position.x = Math.cos(elapsed) * 10;
-  pointLight2.position.z = Math.sin(elapsed) * 10;
-  
-  objectRenderer.render(objectScene, objectCamera);
+  return s;
 }
 
-// 3D наклон карточек
-document.querySelectorAll('.card-3d').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = (y - centerY) / 8;
-    const rotateY = (centerX - x) / 8;
-    card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
-  });
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-  });
-});
-
-// ========================================
-// 3D СЦЕНА 3: WAVE GRID
-// ========================================
-const waveScene = new THREE.Scene();
-const waveCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-const waveRenderer = new THREE.WebGLRenderer({ 
-  canvas: document.getElementById('wave-canvas'),
-  antialias: true, 
-  alpha: true 
-});
-waveRenderer.setSize(window.innerWidth, window.innerHeight);
-waveRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-waveCamera.position.set(0, 15, 25);
-waveCamera.rotation.x = -Math.PI / 6;
-
-const waveGroup = new THREE.Group();
-waveScene.add(waveGroup);
-
-const waveSize = 30;
-const waveSpacing = 1.2;
-const waveCubes = [];
-
-for (let x = 0; x < waveSize; x++) {
-  for (let z = 0; z < waveSize; z++) {
-    const cube = new THREE.Mesh(
-      new THREE.BoxGeometry(0.8, 0.8, 0.8),
-      new THREE.MeshStandardMaterial({ 
-        color: new THREE.Color().setHSL((x + z) / waveSize / 2, 1, 0.5),
-        metalness: 0.5,
-        roughness: 0.3
-      })
-    );
-    cube.position.set(
-      (x - waveSize/2) * waveSpacing,
-      0,
-      (z - waveSize/2) * waveSpacing
-    );
-    waveCubes.push({ mesh: cube, x: x, z: z });
-    waveGroup.add(cube);
+function createProgram(gl, vs, fs) {
+  const p = gl.createProgram();
+  gl.attachShader(p, createShader(gl, gl.VERTEX_SHADER, vs));
+  gl.attachShader(p, createShader(gl, gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+    console.error(gl.getProgramInfoLog(p));
+    return null;
   }
+  return p;
 }
 
-waveScene.add(new THREE.AmbientLight(0xffffff, 0.4));
-const waveLight = new THREE.PointLight(0xff00e4, 2, 50);
-waveLight.position.set(0, 20, 0);
-waveScene.add(waveLight);
-const waveLight2 = new THREE.PointLight(0x00f0ff, 2, 50);
-waveLight2.position.set(15, 15, 0);
-waveScene.add(waveLight2);
-
-function animateWave(time) {
-  const elapsed = time * 0.001;
-  waveCubes.forEach(c => {
-    const distance = Math.sqrt(
-      Math.pow(c.x - waveSize/2, 2) + 
-      Math.pow(c.z - waveSize/2, 2)
-    );
-    const wave = Math.sin(distance * 0.4 - elapsed * 2) * 2;
-    const mouseInfluence = Math.exp(-distance * 0.1) * 3;
-    c.mesh.position.y = wave + mouseInfluence * Math.sin(elapsed * 3);
-    c.mesh.rotation.x = elapsed + c.x * 0.1;
-    c.mesh.rotation.z = elapsed + c.z * 0.1;
-    c.mesh.scale.y = 1 + wave * 0.2;
-  });
+// ============================================
+// 1. HERO - ФРАКТАЛЬНЫЙ ШЕЙДЕР (Mandelbrot Tunnel)
+// ============================================
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const gl = canvas.getContext('webgl', { antialias: true });
+  if (!gl) return;
   
-  waveGroup.rotation.y = elapsed * 0.1;
-  waveLight.position.x = Math.sin(elapsed) * 20;
-  waveLight.position.z = Math.cos(elapsed) * 20;
-  waveLight2.position.x = Math.cos(elapsed) * 20;
-  waveLight2.position.z = Math.sin(elapsed) * 20;
+  function resize() {
+    canvas.width = window.innerWidth * window.devicePixelRatio;
+    canvas.height = window.innerHeight * window.devicePixelRatio;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
   
-  waveRenderer.render(waveScene, waveCamera);
-}
-
-// ========================================
-// 3D СЦЕНА 4: ПЛАНЕТА
-// ========================================
-const planetScene = new THREE.Scene();
-const planetCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-const planetRenderer = new THREE.WebGLRenderer({ 
-  canvas: document.getElementById('planet-canvas'),
-  antialias: true, 
-  alpha: true 
-});
-planetRenderer.setSize(window.innerWidth, window.innerHeight);
-planetRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-// Планета с кастомным шейдером
-const planetGeometry = new THREE.SphereGeometry(4, 64, 64);
-const planetMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector2(0, 0) }
-  },
-  vertexShader: `
-    varying vec2 vUv;
-    varying vec3 vNormal;
-    void main() {
-      vUv = uv;
-      vNormal = normalize(normalMatrix * normal);
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: `
+  const vs = `
+    attribute vec2 aPosition;
+    void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }
+  `;
+  
+  const fs = `
+    precision highp float;
     uniform float uTime;
+    uniform vec2 uResolution;
     uniform vec2 uMouse;
-    varying vec2 vUv;
-    varying vec3 vNormal;
     
-    // Простой шум
-    float noise(vec2 p) {
-      return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+    // Тоннель через инверсию UV
+    vec3 tunnel(vec2 uv, float t) {
+      vec2 p = uv - 0.5;
+      float r = length(p);
+      float a = atan(p.y, p.x);
+      
+      // Спиральный туннель
+      float z = 1.0 / r + t;
+      float angle = a + z * 0.5;
+      
+      vec2 coord = vec2(angle * 2.0, z);
+      
+      // Процедурный узор
+      float pattern = sin(coord.x * 8.0) * cos(coord.y * 4.0);
+      pattern += sin(coord.x * 16.0 + t) * 0.5;
+      pattern += cos(coord.y * 12.0 - t * 2.0) * 0.5;
+      
+      // Цвет
+      vec3 col1 = vec3(0.0, 0.94, 1.0);
+      vec3 col2 = vec3(1.0, 0.0, 0.89);
+      vec3 col3 = vec3(1.0, 0.84, 0.0);
+      
+      float mix1 = sin(coord.y * 0.5 + t) * 0.5 + 0.5;
+      float mix2 = sin(coord.x * 0.3 + t * 0.5) * 0.5 + 0.5;
+      
+      vec3 color = mix(col1, col2, mix1);
+      color = mix(color, col3, mix2 * 0.5);
+      
+      // Glow
+      color *= 1.0 - r * 0.5;
+      color += pattern * 0.3;
+      
+      // Звёзды
+      float stars = step(0.998, fract(sin(dot(coord * 100.0, vec2(12.9898, 78.233))) * 43758.5453));
+      color += stars * vec3(1.0) * 2.0;
+      
+      return color;
     }
     
-    float fbm(vec2 p) {
-      float v = 0.0;
-      float a = 0.5;
-      for (int i = 0; i < 5; i++) {
-        v += a * noise(p);
-        p *= 2.0;
-        a *= 0.5;
+    // Мандельброт
+    float mandel(vec2 c) {
+      vec2 z = vec2(0.0);
+      float i = 0.0;
+      for (int n = 0; n < 50; n++) {
+        if (length(z) > 2.0) break;
+        z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
+        i++;
       }
-      return v;
+      return i / 50.0;
     }
     
     void main() {
-      vec2 uv = vUv;
+      vec2 uv = gl_FragCoord.xy / uResolution;
+      vec2 p = (uv - 0.5) * vec2(uResolution.x / uResolution.y, 1.0);
       
-      // Создаём текстуру планеты
-      float n = fbm(uv * 8.0 + uTime * 0.1);
-      float n2 = fbm(uv * 16.0 - uTime * 0.05);
+      // Смешиваем туннель и мандельброт
+      vec3 col = tunnel(uv, uTime * 0.3);
       
-      // Континенты и океаны
-      vec3 deep = vec3(0.0, 0.1, 0.4);
-      vec3 shallow = vec3(0.0, 0.4, 0.8);
-      vec3 land = vec3(0.2, 0.5, 0.1);
-      vec3 mountain = vec3(0.5, 0.3, 0.1);
+      // Мандельброт в центре
+      vec2 mp = p * 2.0 - uMouse * 0.5;
+      float m = mandel(mp + vec2(-0.5, 0.0));
+      vec3 mandelColor = vec3(
+        sin(m * 6.28) * 0.5 + 0.5,
+        sin(m * 6.28 + 2.0) * 0.5 + 0.5,
+        sin(m * 6.28 + 4.0) * 0.5 + 0.5
+      );
       
-      vec3 color = mix(deep, shallow, smoothstep(0.3, 0.4, n));
-      color = mix(color, land, smoothstep(0.4, 0.5, n));
-      color = mix(color, mountain, smoothstep(0.6, 0.7, n2));
+      // Маска для мандельброта
+      float mask = smoothstep(0.5, 0.0, length(p));
+      col = mix(col, mandelColor * m, mask * 0.5);
       
-      // Облака
-      float clouds = fbm(uv * 4.0 + uTime * 0.2);
-      color = mix(color, vec3(1.0), smoothstep(0.6, 0.7, clouds) * 0.5);
+      // Glitch эффект
+      float glitch = step(0.99, fract(sin(uv.y * 100.0 + uTime) * 43758.5453));
+      col += vec3(glitch) * 0.3;
+      
+      // Vignette
+      float vig = 1.0 - length(p) * 0.5;
+      col *= vig;
+      
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+  
+  const program = createProgram(gl, vs, fs);
+  gl.useProgram(program);
+  
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    -1, -1, 1, -1, -1, 1,
+    -1, 1, 1, -1, 1, 1
+  ]), gl.STATIC_DRAW);
+  
+  const posLoc = gl.getAttribLocation(program, 'aPosition');
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+  
+  const timeLoc = gl.getUniformLocation(program, 'uTime');
+  const resLoc = gl.getUniformLocation(program, 'uResolution');
+  const mouseLoc = gl.getUniformLocation(program, 'uMouse');
+  
+  function render(t) {
+    gl.uniform1f(timeLoc, t * 0.001);
+    gl.uniform2f(resLoc, canvas.width, canvas.height);
+    gl.uniform2f(mouseLoc, mouse.x / window.innerWidth - 0.5, -(mouse.y / window.innerHeight - 0.5));
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+
+// ============================================
+// 2. ИНТЕРАКТИВНАЯ 3D СЦЕНА (Чистый WebGL)
+// ============================================
+(function() {
+  const canvas = document.getElementById('scene-canvas');
+  const gl = canvas.getContext('webgl', { antialias: true });
+  if (!gl) return;
+  
+  let camDist = 5;
+  let camYaw = 0.5;
+  let camPitch = 0.3;
+  let isDragging = false;
+  let lastX = 0, lastY = 0;
+  let currentShape = 'cube';
+  let targetShape = 'cube';
+  let shapeTransition = 0;
+  let rotation = { x: 0, y: 0 };
+  
+  function resize() {
+    canvas.width = window.innerWidth * window.devicePixelRatio;
+    canvas.height = window.innerHeight * window.devicePixelRatio;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  
+  // Управление
+  canvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
+  canvas.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    camYaw += dx * 0.01;
+    camPitch += dy * 0.01;
+    camPitch = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, camPitch));
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+  canvas.addEventListener('mouseup', () => isDragging = false);
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    camDist += e.deltaY * 0.005;
+    camDist = Math.max(2, Math.min(20, camDist));
+  });
+  
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      targetShape = btn.dataset.shape;
+      shapeTransition = 0;
+    });
+  });
+  
+  // Генерация геометрии
+  function genSphere(s, stacks=20, slices=20) {
+    const v = [], i = [];
+    for (let a = 0; a <= stacks; a++) {
+      const theta = a * Math.PI / stacks;
+      for (let b = 0; b <= slices; b++) {
+        const phi = b * 2 * Math.PI / slices;
+        const x = Math.sin(theta) * Math.cos(phi);
+        const y = Math.cos(theta);
+        const z = Math.sin(theta) * Math.sin(phi);
+        v.push(x, y, z, x, y, z);
+        if (a < stacks && b < slices) {
+          const p1 = a * (slices + 1) + b;
+          const p2 = p1 + slices + 1;
+          i.push(p1, p2, p1 + 1, p1 + 1, p2, p2 + 1);
+        }
+      }
+    }
+    return { vertices: new Float32Array(v), indices: new Uint16Array(i), count: i.length };
+  }
+  
+  function genCube(s) {
+    const v = [], i = [];
+    const faces = [
+      [[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1],[0,0,1]],
+      [[1,-1,-1],[-1,-1,-1],[-1,1,-1],[1,1,-1],[0,0,-1]],
+      [[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1],[1,0,0]],
+      [[-1,-1,-1],[-1,-1,1],[-1,1,1],[-1,1,-1],[-1,0,0]],
+      [[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1],[0,1,0]],
+      [[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1],[0,-1,0]]
+    ];
+    faces.forEach(f => {
+      f.slice(0, 4).forEach(p => v.push(p[0], p[1], p[2], f[4][0], f[4][1], f[4][2]));
+      const b = i.length / 6;
+      i.push(b, b+1, b+2, b, b+2, b+3);
+    });
+    return { vertices: new Float32Array(v), indices: new Uint16Array(i), count: i.length };
+  }
+  
+  function genTorus(s, R=1, r=0.4, segs=30, tubes=20) {
+    const v = [], i = [];
+    for (let j = 0; j <= tubes; j++) {
+      for (let k = 0; k <= segs; k++) {
+        const u = k * 2 * Math.PI / segs;
+        const v2 = j * 2 * Math.PI / tubes;
+        const x = (R + r * Math.cos(v2)) * Math.cos(u);
+        const y = (R + r * Math.cos(v2)) * Math.sin(u);
+        const z = r * Math.sin(v2);
+        const nx = Math.cos(v2) * Math.cos(u);
+        const ny = Math.cos(v2) * Math.sin(u);
+        const nz = Math.sin(v2);
+        v.push(x, y, z, nx, ny, nz);
+        if (j < tubes && k < segs) {
+          const p1 = j * (segs + 1) + k;
+          const p2 = p1 + segs + 1;
+          i.push(p1, p2, p1 + 1, p1 + 1, p2, p2 + 1);
+        }
+      }
+    }
+    return { vertices: new Float32Array(v), indices: new Uint16Array(i), count: i.length };
+  }
+  
+  function genIcosa(s) {
+    const t = (1 + Math.sqrt(5)) / 2;
+    const verts = [
+      [-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],
+      [0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],
+      [t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]
+    ];
+    const faces = [
+      [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+      [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+      [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+      [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+    ];
+    const v = [], idx = [];
+    faces.forEach(f => {
+      const p0 = verts[f[0]], p1 = verts[f[1]], p2 = verts[f[2]];
+      const ax = p1[0]-p0[0], ay = p1[1]-p0[1], az = p1[2]-p0[2];
+      const bx = p2[0]-p0[0], by = p2[1]-p0[1], bz = p2[2]-p0[2];
+      let nx = ay*bz - az*by;
+      let ny = az*bx - ax*bz;
+      let nz = ax*by - ay*bx;
+      const l = Math.sqrt(nx*nx + ny*ny + nz*nz);
+      nx /= l; ny /= l; nz /= l;
+      [p0, p1, p2].forEach(p => v.push(p[0], p[1], p[2], nx, ny, nz));
+      const b = idx.length / 6;
+      idx.push(b, b+1, b+2);
+    });
+    return { vertices: new Float32Array(v), indices: new Uint16Array(idx), count: idx.length };
+  }
+  
+  function genKnot(s) {
+    return genTorus('knot', 1, 0.3, 100, 30);
+  }
+  
+  function genCylinder(s) {
+    const v = [], i = [];
+    const segs = 30;
+    for (let j = 0; j < 2; j++) {
+      const y = j === 0 ? -1 : 1;
+      for (let k = 0; k <= segs; k++) {
+        const a = k * 2 * Math.PI / segs;
+        v.push(Math.cos(a), y, Math.sin(a), Math.cos(a), 0, Math.sin(a));
+      }
+    }
+    const offset = segs + 1;
+    for (let k = 0; k < segs; k++) {
+      i.push(k, k + offset, k + 1, k + 1, k + offset, k + 1 + offset);
+    }
+    return { vertices: new Float32Array(v), indices: new Uint16Array(i), count: i.length };
+  }
+  
+  function genCone(s) {
+    const v = [], i = [];
+    const segs = 30;
+    for (let k = 0; k <= segs; k++) {
+      const a = k * 2 * Math.PI / segs;
+      v.push(Math.cos(a), -1, Math.sin(a), Math.cos(a), 0, Math.sin(a));
+    }
+    v.push(0, 1, 0, 0, 1, 0);
+    const topIdx = (segs + 1);
+    for (let k = 0; k < segs; k++) {
+      i.push(k, topIdx, k + 1);
+    }
+    return { vertices: new Float32Array(v), indices: new Uint16Array(i), count: i.length };
+  }
+  
+  const shapes = {
+    cube: genCube,
+    sphere: genSphere,
+    torus: genTorus,
+    knot: genKnot,
+    icosa: genIcosa,
+    icosa2: () => { const s = genIcosa(); s.vertices = new Float32Array(s.vertices); return s; },
+    cylinder: genCylinder,
+    cone: genCone
+  };
+  
+  let currentMesh = null;
+  function loadShape(name) {
+    const mesh = shapes[name]('s');
+    const vbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, mesh.vertices, gl.STATIC_DRAW);
+    const ibo = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, mesh.indices, gl.STATIC_DRAW);
+    return { ...mesh, vbo, ibo };
+  }
+  
+  currentMesh = loadShape('cube');
+  let targetMesh = currentMesh;
+  
+  // Шейдеры
+  const vs = `
+    attribute vec3 aPos;
+    attribute vec3 aNormal;
+    uniform mat4 uProj;
+    uniform mat4 uView;
+    uniform mat4 uModel;
+    varying vec3 vNormal;
+    varying vec3 vPos;
+    void main() {
+      vec4 pos = uModel * vec4(aPos, 1.0);
+      vPos = pos.xyz;
+      vNormal = mat3(uModel) * aNormal;
+      gl_Position = uProj * uView * pos;
+    }
+  `;
+  
+  const fs = `
+    precision highp float;
+    varying vec3 vNormal;
+    varying vec3 vPos;
+    uniform float uTime;
+    uniform vec3 uCamPos;
+    
+    vec3 lightDir1 = normalize(vec3(0.5, 1.0, 0.5));
+    vec3 lightDir2 = normalize(vec3(-0.5, -0.5, 0.8));
+    vec3 lightCol1 = vec3(0.0, 0.94, 1.0);
+    vec3 lightCol2 = vec3(1.0, 0.0, 0.89);
+    
+    void main() {
+      vec3 N = normalize(vNormal);
       
       // Освещение
-      float light = dot(vNormal, normalize(vec3(0.5, 0.5, 1.0)));
-      light = max(0.2, light);
-      color *= light;
+      float diff1 = max(dot(N, lightDir1), 0.0);
+      float diff2 = max(dot(N, lightDir2), 0.0);
       
-      // Атмосферное свечение
-      float atmosphere = pow(1.0 - abs(dot(vNormal, vec3(0, 0, 1))), 2.0);
-      color += vec3(0.3, 0.5, 1.0) * atmosphere * 0.3;
+      // Rim свет
+      vec3 V = normalize(uCamPos - vPos);
+      float rim = 1.0 - max(dot(N, V), 0.0);
+      rim = pow(rim, 2.0);
+      
+      // Specular
+      vec3 H = normalize(lightDir1 + V);
+      float spec = pow(max(dot(N, H), 0.0), 32.0);
+      
+      // Fresnel
+      float fresnel = pow(1.0 - max(dot(N, V), 0.0), 3.0);
+      
+      vec3 color = vec3(0.1, 0.1, 0.2);
+      color += diff1 * lightCol1;
+      color += diff2 * lightCol2 * 0.5;
+      color += spec * vec3(1.0);
+      color += rim * vec3(0.0, 0.94, 1.0) * 1.5;
+      color += fresnel * vec3(1.0, 0.0, 0.89) * 2.0;
+      
+      // Цвет на основе нормали (иридесценция)
+      color += N * 0.1;
       
       gl_FragColor = vec4(color, 1.0);
     }
-  `
-});
-
-const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-planet.position.x = -5;
-planetScene.add(planet);
-
-// Атмосфера
-const atmosphere = new THREE.Mesh(
-  new THREE.SphereGeometry(4.3, 64, 64),
-  new THREE.ShaderMaterial({
-    vertexShader: `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  `;
+  
+  const program = createProgram(gl, vs, fs);
+  gl.useProgram(program);
+  
+  const posLoc = gl.getAttribLocation(program, 'aPos');
+  const normLoc = gl.getAttribLocation(program, 'aNormal');
+  const projLoc = gl.getUniformLocation(program, 'uProj');
+  const viewLoc = gl.getUniformLocation(program, 'uView');
+  const modelLoc = gl.getUniformLocation(program, 'uModel');
+  const timeLoc = gl.getUniformLocation(program, 'uTime');
+  const camPosLoc = gl.getUniformLocation(program, 'uCamPos');
+  
+  // Матрицы
+  function mat4Perspective(fov, aspect, near, far) {
+    const f = 1.0 / Math.tan(fov / 2);
+    const nf = 1 / (near - far);
+    return new Float32Array([
+      f/aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far+near)*nf, -1,
+      0, 0, 2*far*near*nf, 0
+    ]);
+  }
+  
+  function mat4LookAt(eye, center, up) {
+    const zx = eye[0]-center[0], zy = eye[1]-center[1], zz = eye[2]-center[2];
+    let l = Math.sqrt(zx*zx + zy*zy + zz*zz);
+    const z = [zx/l, zy/l, zz/l];
+    const xx = up[1]*z[2] - up[2]*z[1];
+    const xy = up[2]*z[0] - up[0]*z[2];
+    const xz = up[0]*z[1] - up[1]*z[0];
+    l = Math.sqrt(xx*xx + xy*xy + xz*xz);
+    const x = [xx/l, xy/l, xz/l];
+    const y = [z[1]*x[2] - z[2]*x[1], z[2]*x[0] - z[0]*x[2], z[0]*x[1] - z[1]*x[0]];
+    return new Float32Array([
+      x[0], y[0], z[0], 0,
+      x[1], y[1], z[1], 0,
+      x[2], y[2], z[2], 0,
+      -x[0]*eye[0]-x[1]*eye[1]-x[2]*eye[2],
+      -y[0]*eye[0]-y[1]*eye[1]-y[2]*eye[2],
+      -z[0]*eye[0]-z[1]*eye[1]-z[2]*eye[2],
+      1
+    ]);
+  }
+  
+  function mat4RotX(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return new Float32Array([1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]);
+  }
+  function mat4RotY(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1]);
+  }
+  function mat4Scale(s) {
+    return new Float32Array([s,0,0,0, 0,s,0,0, 0,0,s,0, 0,0,0,1]);
+  }
+  function mat4Mult(a, b) {
+    const r = new Float32Array(16);
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 4; j++) {
+        r[i*4+j] = 0;
+        for (let k = 0; k < 4; k++) r[i*4+j] += a[i*4+k] * b[k*4+j];
       }
-    `,
-    fragmentShader: `
-      varying vec3 vNormal;
-      void main() {
-        float intensity = pow(0.6 - dot(vNormal, vec3(0, 0, 1)), 2.0);
-        gl_FragColor = vec3(0.3, 0.6, 1.0) * intensity;
-      }
-    `,
-    blending: THREE.AdditiveBlending,
-    side: THREE.BackSide,
-    transparent: true
-  })
-);
-planet.add(atmosphere);
+    return r;
+  }
+  
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK);
+  
+  function render(t) {
+    const time = t * 0.001;
+    
+    // Смена формы
+    if (currentShape !== targetShape && shapeTransition === 0) {
+      targetMesh = loadShape(targetShape);
+      currentShape = targetShape;
+      shapeTransition = 0.01;
+    }
+    if (shapeTransition > 0) shapeTransition = Math.min(1, shapeTransition + 0.05);
+    
+    // Автовращение
+    if (!isDragging) {
+      camYaw += 0.005;
+    }
+    
+    // Камера
+    const camX = Math.sin(camYaw) * Math.cos(camPitch) * camDist;
+    const camY = Math.sin(camPitch) * camDist;
+    const camZ = Math.cos(camYaw) * Math.cos(camPitch) * camDist;
+    
+    const proj = mat4Perspective(Math.PI/3, canvas.width/canvas.height, 0.1, 100);
+    const view = mat4LookAt([camX, camY, camZ], [0, 0, 0], [0, 1, 0]);
+    
+    // Очистка
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+    gl.useProgram(program);
+    gl.uniformMatrix4fv(projLoc, false, proj);
+    gl.uniformMatrix4fv(viewLoc, false, view);
+    gl.uniform1f(timeLoc, time);
+    gl.uniform3f(camPosLoc, camX, camY, camZ);
+    
+    // Mesh 1 (старый)
+    if (currentMesh && shapeTransition < 1) {
+      const model = mat4Mult(mat4RotY(rotation.y), mat4RotX(rotation.x));
+      const scale = 1 - shapeTransition * 0.5;
+      const m = mat4Mult(model, mat4Scale(scale));
+      gl.uniformMatrix4fv(modelLoc, false, m);
+      gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.vbo);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentMesh.ibo);
+      gl.enableVertexAttribArray(posLoc);
+      gl.enableVertexAttribArray(normLoc);
+      gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 24, 0);
+      gl.vertexAttribPointer(normLoc, 3, gl.FLOAT, false, 24, 12);
+      gl.drawElements(gl.TRIANGLES, currentMesh.count, gl.UNSIGNED_SHORT, 0);
+    }
+    
+    // Mesh 2 (новый)
+    if (targetMesh && shapeTransition > 0) {
+      const model = mat4Mult(mat4RotY(rotation.y), mat4RotX(rotation.x));
+      const scale = shapeTransition;
+      const m = mat4Mult(model, mat4Scale(scale));
+      gl.uniformMatrix4fv(modelLoc, false, m);
+      gl.bindBuffer(gl.ARRAY_BUFFER, targetMesh.vbo);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, targetMesh.ibo);
+      gl.enableVertexAttribArray(posLoc);
+      gl.enableVertexAttribArray(normLoc);
+      gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 24, 0);
+      gl.vertexAttribPointer(normLoc, 3, gl.FLOAT, false, 24, 12);
+      gl.drawElements(gl.TRIANGLES, targetMesh.count, gl.UNSIGNED_SHORT, 0);
+    }
+    
+    rotation.y += 0.005;
+    rotation.x += 0.002;
+    
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
 
-// Звёзды вокруг планеты
-const starCount = 3000;
-const starGeometry = new THREE.BufferGeometry();
-const starPositions = new Float32Array(starCount * 3);
-for (let i = 0; i < starCount; i++) {
-  starPositions[i*3] = (Math.random() - 0.5) * 200;
-  starPositions[i*3+1] = (Math.random() - 0.5) * 200;
-  starPositions[i*3+2] = (Math.random() - 0.5) * 200;
-}
-starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({
-  size: 0.3,
-  color: 0xffffff,
-  transparent: true,
-  opacity: 0.8
-}));
-planetScene.add(stars);
-
-planetCamera.position.z = 12;
-
-function animatePlanet() {
-  const elapsed = clock.getElapsedTime();
-  planetMaterial.uniforms.uTime.value = elapsed;
-  planet.rotation.y = elapsed * 0.1;
-  stars.rotation.y = elapsed * 0.01;
+// ============================================
+// 3. ЖИДКОСТНАЯ СИМУЛЯЦИЯ (Navier-Stokes)
+// ============================================
+(function() {
+  const canvas = document.getElementById('fluid-canvas');
+  const ctx = canvas.getContext('2d');
   
-  const targetX = (mouse.x / window.innerWidth - 0.5) * 3;
-  const targetY = -(mouse.y / window.innerHeight - 0.5) * 2;
-  planetCamera.position.x = lerp(planetCamera.position.x, targetX, 0.05);
-  planetCamera.position.y = lerp(planetCamera.position.y, targetY, 0.05);
-  planetCamera.lookAt(planet.position);
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
   
-  planetRenderer.render(planetScene, planetCamera);
-}
-
-// ========================================
-// ГЛАВНЫЙ ЦИКЛ РЕНДЕРИНГА
-// ========================================
-function animate() {
-  requestAnimationFrame(animate);
-  const time = performance.now();
+  // Частицы жидкости
+  const particles = [];
+  const count = 600;
   
-  animateHero();
-  animateObject();
-  animateWave(time);
-  animatePlanet();
-}
-animate();
-
-// ========================================
-// РЕСАЙЗ
-// ========================================
-window.addEventListener('resize', () => {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: 0,
+      vy: 0,
+      life: Math.random(),
+      hue: Math.random() * 60 + 180
+    });
+  }
   
-  heroCamera.aspect = w / h;
-  heroCamera.updateProjectionMatrix();
-  heroRenderer.setSize(w, h);
-  
-  objectCamera.aspect = w / h;
-  objectCamera.updateProjectionMatrix();
-  objectRenderer.setSize(w, h);
-  
-  waveCamera.aspect = w / h;
-  waveCamera.updateProjectionMatrix();
-  waveRenderer.setSize(w, h);
-  
-  planetCamera.aspect = w / h;
-  planetCamera.updateProjectionMatrix();
-  planetRenderer.setSize(w, h);
-});
-
-// Плавный скролл
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function(e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  document.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    // Создаём возмущение
+    for (let i = 0; i < 3; i++) {
+      particles.push({
+        x: mx + (Math.random() - 0.5) * 50,
+        y: my + (Math.random() - 0.5) * 50,
+        vx: (Math.random() - 0.5) * 15,
+        vy: (Math.random() - 0.5) * 15,
+        life: 1,
+        hue: Math.random() * 60 + 180
+      });
+    }
   });
-});
-</script>
+  
+  function render() {
+    // Слабая заливка для шлейфа
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    particles.forEach((p, i) => {
+      // Гравитация
+      p.vy += 0.05;
+      
+      // Шум Перлина (упрощённый)
+      const nx = Math.sin(p.x * 0.01 + performance.now() * 0.001) * 0.5;
+      const ny = Math.cos(p.y * 0.01 + performance.now() * 0.001) * 0.5;
+      p.vx += nx * 0.1;
+      p.vy += ny * 0.1;
+      
+      // Притяжение к центру
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const dx = cx - p.x;
+      const dy = cy - p.y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d > 100) {
+        p.vx += dx * 0.001;
+        p.vy += dy * 0.001;
+      }
+      
+      // Вязкость
+      p.vx *= 0.98;
+      p.vy *= 0.98;
+      
+      p.x += p.vx;
+      p.y += p.vy;
+      
+      // Границы
+      if (p.x < 0) { p.x = 0; p.vx *= -0.5; }
+      if (p.x > canvas.width) { p.x = canvas.width; p.vx *= -0.5; }
+      if (p.y < 0) { p.y = 0; p.vy *= -0.5; }
+      if (p.y > canvas.height) { p.y = canvas.height; p.vy *= -0.5; }
+      
+      p.life -= 0.002;
+      
+      // Рисуем
+      const size = 2 + Math.sin(p.life * 10) * 1;
+      ctx.fillStyle = `hsla(${p.hue}, 100%, 60%, ${p.life * 0.8})`;
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = `hsl(${p.hue}, 100%, 60%)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    
+    // Удаляем мёртвые
+    for (let i = particles.length - 1; i >= 0; i--) {
+      if (particles[i].life <= 0) particles.splice(i, 1);
+    }
+    
+    requestAnimationFrame(render);
+  }
+  render();
+})();
 
+// ============================================
+// 4. METABALLS (Marching Squares)
+// ============================================
+(function() {
+  const canvas = document.getElementById('metaball-canvas');
+  const ctx = canvas.getContext('2d');
+  
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  
+  const balls = [];
+  for (let i = 0; i < 8; i++) {
+    balls.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4,
+      r: 80 + Math.random() * 60
+    });
+  }
+  
+  // Добавляем мяч за мышью
+  let mouseBall = { x: 0, y: 0, r: 100, active: false };
+  document.addEventListener('mousemove', e => {
+    mouseBall.x = e.clientX;
+    mouseBall.y = e.clientY;
+    mouseBall.active = true;
+  });
+  
+  function render() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const grid = 8;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(0, 0, w, h);
+    
+    // Обновляем шары
+    balls.forEach(b => {
+      b.x += b.vx;
+      b.y += b.vy;
+      if (b.x < b.r || b.x > w - b.r) b.vx *= -1;
+      if (b.y < b.r || b.y > h - b.r) b.vy *= -1;
+    });
+    
+    const allBalls = mouseBall.active ? [...balls, mouseBall] : balls;
+    
+    // Создаём изображение
+    const img = ctx.createImageData(w / grid, h / grid);
+    const gw = img.width;
+    const gh = img.height;
+    
+    for (let y = 0; y < gh; y++) {
+      for (let x = 0; x < gw; x++) {
+        let sum = 0;
+        const px = x * grid;
+        const py = y * grid;
+        for (const b of allBalls) {
+          const dx = px - b.x;
+          const dy = py - b.y;
+          const d2 = dx*dx + dy*dy;
+          sum += (b.r * b.r) / d2;
+        }
+        
+        const idx = (y * gw + x) * 4;
+        if (sum > 1) {
+          const hue = 280 + sum * 30;
+          const [r, g, b] = hslToRgb(hue % 360, 100, 50);
+          img.data[idx] = r;
+          img.data[idx+1] = g;
+          img.data[idx+2] = b;
+          img.data[idx+3] = 255;
+        } else {
+          img.data[idx+3] = 0;
+        }
+      }
+    }
+    
+    // Рисуем масштабированно
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = gw;
+    tempCanvas.height = gh;
+    const tCtx = tempCanvas.getContext('2d');
+    tCtx.putImageData(img, 0, 0);
+    
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(tempCanvas, 0, 0, w, h);
+    
+    // Glow
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = 'rgba(255, 0, 228, 0.05)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+    
+    requestAnimationFrame(render);
+  }
+  
+  function hslToRgb(h, s, l) {
+    h /= 360; s /= 100; l /= 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = n => {
+      const k = (n + h * 12) % 12;
+      return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    };
+    return [Math.floor(f(0) * 255), Math.floor(f(8) * 255), Math.floor(f(4) * 255)];
+  }
+  
+  render();
+})();
+
+// ============================================
+// 5. CONSTRUCTOR 3D - Кликаешь, появляются кубы
+// ============================================
+(function() {
+  const canvas = document.getElementById('builder-canvas');
+  const gl = canvas.getContext('webgl', { antialias: true });
+  if (!gl) return;
+  
+  function resize() {
+    canvas.width = canvas.clientWidth * window.devicePixelRatio;
+    canvas.height = canvas.clientHeight * window.devicePixelRatio;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  
+  let camDist = 8;
+  let camYaw = 0.3;
+  let camPitch = 0.2;
+  let isDragging = false;
+  let lastX = 0, lastY = 0;
+  
+  canvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
+  canvas.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    camYaw += (e.clientX - lastX) * 0.01;
+    camPitch += (e.clientY - lastY) * 0.01;
+    camPitch = Math.max(-1, Math.min(1, camPitch));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  canvas.addEventListener('mouseup', () => isDragging = false);
+  canvas.addEventListener('click', e => {
+    if (Math.abs(e.clientX - lastX) < 5 && Math.abs(e.clientY - lastY) < 5) {
+      // Клик - добавляем куб
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width * 2 - 1;
+      const y = -(e.clientY - rect.top) / rect.height * 2 + 1;
+      addCube(x * 3, y * 2, (Math.random() - 0.5) * 2);
+    }
+  });
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    camDist = Math.max(3, Math.min(20, camDist + e.deltaY * 0.01));
+  }, { passive: false });
+  
+  const cubes = [];
+  function addCube(x, y, z) {
+    cubes.push({
+      x, y, z,
+      rx: Math.random() * Math.PI,
+      ry: Math.random() * Math.PI,
+      vx: (Math.random() - 0.5) * 2,
+      vy: 5 + Math.random() * 3,
+      vz: (Math.random() - 0.5) * 2,
+      born: performance.now(),
+      color: [Math.random(), Math.random(), Math.random()]
+    });
+  }
+  
+  // Инициализация
+  for (let i = 0; i < 30; i++) {
+    addCube(
+      (Math.random() - 0.5) * 8,
+      Math.random() * 5 + 2,
+      (Math.random() - 0.5) * 8
+    );
+  }
+  
+  // Шейдеры
+  const vs = `
+    attribute vec3 aPos;
+    attribute vec3 aNormal;
+    attribute vec3 aColor;
+    uniform mat4 uMVP;
+    uniform mat4 uModel;
+    varying vec3 vNormal;
+    varying vec3 vPos;
+    varying vec3 vColor;
+    void main() {
+      vec4 pos = uModel * vec4(aPos, 1.0);
+      vPos = pos.xyz;
+      vNormal = mat3(uModel) * aNormal;
+      vColor = aColor;
+      gl_Position = uMVP * vec4(aPos, 1.0);
+    }
+  `;
+  
+  const fs = `
+    precision highp float;
+    varying vec3 vNormal;
+    varying vec3 vPos;
+    varying vec3 vColor;
+    uniform vec3 uCamPos;
+    void main() {
+      vec3 N = normalize(vNormal);
+      vec3 V = normalize(uCamPos - vPos);
+      vec3 L = normalize(vec3(0.5, 1.0, 0.5));
+      float diff = max(dot(N, L), 0.0);
+      float rim = pow(1.0 - max(dot(N, V), 0.0), 2.0);
+      vec3 H = normalize(L + V);
+      float spec = pow(max(dot(N, H), 0.0), 32.0);
+      vec3 col = vColor * (0.2 + diff * 0.8);
+      col += spec * vec3(1.0);
+      col += rim * vec3(0.0, 0.94, 1.0) * 1.5;
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+  
+  const program = createProgram(gl, vs, fs);
+  gl.useProgram(program);
+  
+  // Cube геометрия
+  const cubeVerts = [];
+  const cubeIdx = [];
+  const faces = [
+    [[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1],[0,0,1]],
+    [[1,-1,-1],[-1,-1,-1],[-1,1,-1],[1,1,-1],[0,0,-1]],
+    [[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1],[1,0,0]],
+    [[-1,-1,-1],[-1,-1,1],[-1,1,1],[-1,1,-1],[-1,0,0]],
+    [[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1],[0,1,0]],
+    [[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1],[0,-1,0]]
+  ];
+  faces.forEach(f => {
+    const c = f[4].map(Math.abs);
+    f.slice(0, 4).forEach(p => cubeVerts.push(p[0]*0.4, p[1]*0.4, p[2]*0.4, f[4][0], f[4][1], f[4][2], c[0], c[1], c[2]));
+    const b = cubeIdx.length / 6;
+    cubeIdx.push(b, b+1, b+2, b, b+2, b+3);
+  });
+  
+  const vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubeVerts), gl.STATIC_DRAW);
+  const ibo = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeIdx), gl.STATIC_DRAW);
+  
+  const posLoc = gl.getAttribLocation(program, 'aPos');
+  const normLoc = gl.getAttribLocation(program, 'aNormal');
+  const colLoc = gl.getAttribLocation(program, 'aColor');
+  const mvpLoc = gl.getUniformLocation(program, 'uMVP');
+  const modelLoc = gl.getUniformLocation(program, 'uModel');
+  const camLoc = gl.getUniformLocation(program, 'uCamPos');
+  
+  function mat4Perspective(fov, aspect, near, far) {
+    const f = 1.0 / Math.tan(fov / 2);
+    const nf = 1 / (near - far);
+    return new Float32Array([
+      f/aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far+near)*nf, -1,
+      0, 0, 2*far*near*nf, 0
+    ]);
+  }
+  function mat4LookAt(eye, center, up) {
+    const zx = eye[0]-center[0], zy = eye[1]-center[1], zz = eye[2]-center[2];
+    let l = Math.sqrt(zx*zx + zy*zy + zz*zz);
+    const z = [zx/l, zy/l, zz/l];
+    const xx = up[1]*z[2] - up[2]*z[1];
+    const xy = up[2]*z[0] - up[0]*z[2];
+    const xz = up[0]*z[1] - up[1]*z[0];
+    l = Math.sqrt(xx*xx + xy*xy + xz*xz);
+    const x = [xx/l, xy/l, xz/l];
+    const y = [z[1]*x[2] - z[2]*x[1], z[2]*x[0] - z[0]*x[2], z[0]*x[1] - z[1]*x[0]];
+    return new Float32Array([
+      x[0], y[0], z[0], 0,
+      x[1], y[1], z[1], 0,
+      x[2], y[2], z[2], 0,
+      -x[0]*eye[0]-x[1]*eye[1]-x[2]*eye[2],
+      -y[0]*eye[0]-y[1]*eye[1]-y[2]*eye[2],
+      -z[0]*eye[0]-z[1]*eye[1]-z[2]*eye[2],
+      1
+    ]);
+  }
+  function mat4RotX(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return new Float32Array([1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]);
+  }
+  function mat4RotY(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1]);
+  }
+  function mat4Trans(x, y, z) {
+    return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, x,y,z,1]);
+  }
+  function mat4Mult(a, b) {
+    const r = new Float32Array(16);
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 4; j++) {
+        r[i*4+j] = 0;
+        for (let k = 0; k < 4; k++) r[i*4+j] += a[i*4+k] * b[k*4+j];
+      }
+    return r;
+  }
+  
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  
+  function render() {
+    const camX = Math.sin(camYaw) * Math.cos(camPitch) * camDist;
+    const camY = Math.sin(camPitch) * camDist;
+    const camZ = Math.cos(camYaw) * Math.cos(camPitch) * camDist;
+    
+    const proj = mat4Perspective(Math.PI/3, canvas.width/canvas.height, 0.1, 100);
+    const view = mat4LookAt([camX, camY, camZ], [0, 0, 0], [0, 1, 0]);
+    
+    gl.clearColor(0, 0, 0.05, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(program);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.enableVertexAttribArray(posLoc);
+    gl.enableVertexAttribArray(normLoc);
+    gl.enableVertexAttribArray(colLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 36, 0);
+    gl.vertexAttribPointer(normLoc, 3, gl.FLOAT, false, 36, 12);
+    gl.vertexAttribPointer(colLoc, 3, gl.FLOAT, false, 36, 24);
+    
+    gl.uniform3f(camLoc, camX, camY, camZ);
+    
+    // Физика
+    cubes.forEach(c => {
+      c.vy -= 0.2;
+      c.x += c.vx * 0.05;
+      c.y += c.vy * 0.05;
+      c.z += c.vz * 0.05;
+      c.rx += 0.02;
+      c.ry += 0.03;
+      c.vx *= 0.99;
+      c.vz *= 0.99;
+      
+      if (c.y < -3) {
+        c.y = -3;
+        c.vy *= -0.5;
+      }
+    });
+    
+    // Удаляем старые
+    const now = performance.now();
+    for (let i = cubes.length - 1; i >= 0; i--) {
+      if (now - cubes[i].born > 10000) cubes.splice(i, 1);
+    }
+    
+    // Рендер
+    cubes.forEach(c => {
+      const model = mat4Mult(mat4Trans(c.x, c.y, c.z), mat4Mult(mat4RotY(c.ry), mat4RotX(c.rx)));
+      const mvp = mat4Mult(proj, mat4Mult(view, model));
+      gl.uniformMatrix4fv(mvpLoc, false, mvp);
+      gl.uniformMatrix4fv(modelLoc, false, model);
+      gl.drawElements(gl.TRIANGLES, cubeIdx.length, gl.UNSIGNED_SHORT, 0);
+    });
+    
+    requestAnimationFrame(render);
+  }
+  render();
+})();
+
+</script>
 </body>
 </html>
